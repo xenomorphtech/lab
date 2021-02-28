@@ -5,9 +5,9 @@ Machine Learning Experiments
 
 # references
 
-https://github.com/doctorcorral/gyx
-https://github.com/openai/baselines
-https://github.com/openai/gym
+https://github.com/doctorcorral/gyx  
+https://github.com/openai/baselines  
+https://github.com/openai/gym  
 
 # goals
 
