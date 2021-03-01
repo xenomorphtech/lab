@@ -16,5 +16,15 @@ defmodule Snip do
     def run() do
         t = Lab.Trainer.Sarsa.init(Lab.Game.FrozenLake)
         Lab.Trainer.Sarsa.train(t, 10000)
+
+        t = Lab.Trainer.QBasic.init(Lab.Game.FrozenLake)
+        t = Lab.Trainer.QBasic.train(t, 10000)
+        t = Lab.Trainer.QBasic.test(t, 1)
+    end
+
+    def solve_frozen_lake() do
+        t = Lab.Trainer.QBasic.init(Lab.Game.FrozenLake)
+        t = Lab.Trainer.QBasic.train(t, 10000)
+        t = Lab.Trainer.QBasic.test(t, 10)
     end
 end

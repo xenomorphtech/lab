@@ -25,7 +25,7 @@ pip3 install gym[atari]
 
 # goals
 
-- [ ] frozenlake
+- [X] frozenlake
 - [ ] blackjack
 - [ ] ?
 - [ ] slay_the_spire

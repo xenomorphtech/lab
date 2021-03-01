@@ -17,17 +17,28 @@ defmodule Lab.Trainer.QTable do
     |> (fn _ -> :ok end).()
   end
 
-  def q_get(qtable, env_state, action) do
+  def get(qtable, env_state, action) do
     expected_reward = qtable.table[inspect(env_state)][action]
     expected_reward || 0.0
   end
 
-  def q_set(qtable, env_state, action, value) do
+  def set(qtable, env_state, action, value) do
     k_state = inspect(env_state)
 
     qtable = put_in(qtable, [:actions, action], action)
     qtable = put_in(qtable, [:table, k_state], Map.put(qtable.table[k_state]||%{}, action, value))
     qtable
+  end
+
+  def next_max(qtable, env_state) do
+    q_state = qtable.table[inspect(env_state)] || %{}
+    Enum.max(q_state |> Enum.map(& elem(&1,1)), fn()-> 0.0 end)
+  end
+
+  def next_max_action(qtable, env_state) do
+    q_state = qtable.table[inspect(env_state)] || %{}
+    {action,_} = Enum.max_by(q_state, & elem(&1,1), fn()-> {0,0} end)
+    action
   end
 
   def get_max_action(qtable, env_state) do

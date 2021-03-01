@@ -21,10 +21,10 @@ defmodule Lab.Trainer.AgentSarsa do
   end
 
   def td_learn(agent, _sarsa = {s, a, r, ss, aa}) do
-      predict = Lab.Trainer.QTable.q_get(agent.q, s, a)
-      target = r + agent.gamma * Lab.Trainer.QTable.q_get(agent.q, ss, aa)
+      predict = Lab.Trainer.QTable.get(agent.q, s, a)
+      target = r + agent.gamma * Lab.Trainer.QTable.get(agent.q, ss, aa)
       expected_return = predict + agent.learning_rate * (target - predict)
-      qtable = Lab.Trainer.QTable.q_set(agent.q, s, a, expected_return)
+      qtable = Lab.Trainer.QTable.set(agent.q, s, a, expected_return)
       {Map.put(agent, :q, qtable), expected_return}
   end
 
