@@ -32,6 +32,8 @@ pip3 install gym[atari]
 - [ ] 3dnavmesh https://montreal.ubisoft.com/en/deep-reinforcement-learning-for-navigation-in-aaa-video-games/
 
 # slay_the_spire
+At 1x speed, we can improve
+![stsdemo-2021-03-05_01 03 00](https://user-images.githubusercontent.com/3028982/110075475-da677100-7d50-11eb-9bb8-6e673c61795c.gif)
 
 ```
 Modding notes!
@@ -41,6 +43,7 @@ Some cards are currently removed due to complexity to implement them atm, check 
 Dont modifiy `AbstractDungeon.java` if decompiled by CFR, it subtly breaks the RNG generator.
 Alot more work is needed to make the actions faster and never crash.
 SlayTheSpire.test_hardcoded_onlymobs() gives a good indication on the level of optimization, currently the run takes me about 5100ms.
+
 
 
 Getting started!
