@@ -29,3 +29,39 @@ pip3 install gym[atari]
 - [ ] blackjack
 - [ ] ?
 - [ ] slay_the_spire
+- [ ] 3dnavmesh https://montreal.ubisoft.com/en/deep-reinforcement-learning-for-navigation-in-aaa-video-games/
+
+# slay_the_spire
+
+```
+Modding notes!
+We need to make some modifications to slay_the_spire, to expose a GYM API ontop of it. (work in constant progress)
+
+Some cards are currently removed due to complexity to implement them atm, check CardLibrary.java.
+Dont modifiy `AbstractDungeon.java` if decompiled by CFR, it subtly breaks the RNG generator.
+Alot more work is needed to make the actions faster and never crash.
+SlayTheSpire.test_hardcoded_onlymobs() gives a good indication on the level of optimization, currently the run takes me about 5100ms.
+
+
+Getting started!
+
+Install the game, version dated `2020-12-13`, and copy `desktop-1.0.jar` into `./priv/slay_the_spire/6661e72999ce8b0e2b6f62809e8b2737.jar`.
+The md5sum of `6661e72999ce8b0e2b6f62809e8b2737.jar` should be `6661e72999ce8b0e2b6f62809e8b2737`.
+Make it readonly `chmod 0444 6661e72999ce8b0e2b6f62809e8b2737.jar`
+
+Download cfr java decompiler. `wget https://www.benf.org/other/cfr/cfr-0.151.jar` and move it to `./priv/slay_the_spire/`.
+
+Cd into and look at `./priv/slay_the_spire/build.sh` and eventually run it to get the work environment setup.
+
+./priv/slay_the_spire/config/ directory contains the base save file + all unlocks
+
+
+Updating!
+
+Making a new patch
+git diff --no-index 6661e72999ce8b0e2b6f62809e8b2737-original/ 6661e72999ce8b0e2b6f62809e8b2737/ > patch_noanim.diff
+
+Running vanilla game
+java -jar ../6661e72999ce8b0e2b6f62809e8b2737.jar
+
+```

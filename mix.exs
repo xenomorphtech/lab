@@ -41,10 +41,13 @@ defmodule Lab.MixProject do
       # our utilities
       {:dialyxir, git: "https://github.com/xenomorphtech/dialyxir", only: [:dev], runtime: false},
 
-      #
+      #for slaythespire
+      {:java_erlang, git: "https://github.com/fredlund/JavaErlang"},
+
+      #utils
       #{:mnesia_kv, git: "https://github.com/xenomorphtech/mnesia_kv.git"},
       #{:comsat, git: "https://github.com/vans163/ComSat.git"},
-      #{:exjsx, "~> 4.0.0"},
+      {:exjsx, "~> 4.0.0"},
       #{:stargate, git: "https://github.com/vans163/stargate.git"},
     ]
   end

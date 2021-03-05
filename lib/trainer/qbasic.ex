@@ -45,7 +45,6 @@ defmodule Lab.Trainer.QBasic do
   end
 
   defp run_episode(t, true), do: t
-
   defp run_episode(t, false) do
     {:ok, random_action} = Gyx.Core.Spaces.sample(t.gym.action_space)
     {gym_next, exp = %{done: done, reward: reward}} = t.gym.module.step(t.gym, random_action)

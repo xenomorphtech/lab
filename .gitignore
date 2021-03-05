@@ -24,3 +24,8 @@ ex-*.tar
 
 priv/__pycache__
 priv/plts/
+priv/slay_the_spire/*.jar
+priv/slay_the_spire/tmpdir/
+priv/slay_the_spire/com/
+priv/slay_the_spire/6661e72999ce8b0e2b6f62809e8b2737*
+

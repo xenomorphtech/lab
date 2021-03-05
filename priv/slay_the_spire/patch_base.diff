@@ -1,0 +1,484 @@
+diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/actions/ActionLogEntry.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/actions/ActionLogEntry.class
+new file mode 100644
+index 0000000..7a91808
+Binary files /dev/null and b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/actions/ActionLogEntry.class differ
+diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/actions/ClearCardQueueAction.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/actions/ClearCardQueueAction.class
+new file mode 100644
+index 0000000..64c8196
+Binary files /dev/null and b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/actions/ClearCardQueueAction.class differ
+diff --git a/6661e72999ce8b0e2b6f62809e8b2737-original/com/megacrit/cardcrawl/audio/Sfx.java b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/audio/Sfx.java
+index 85bf736..4981f46 100644
+--- a/6661e72999ce8b0e2b6f62809e8b2737-original/com/megacrit/cardcrawl/audio/Sfx.java
++++ b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/audio/Sfx.java
+@@ -75,7 +75,6 @@ public class Sfx {
+                 if (Gdx.audio != null) {
+                     return Gdx.audio.newSound(file);
+                 }
+-                logger.info("WARNING: Gdx.audio is null");
+                 return null;
+             }
+             logger.info("File: " + this.url + " was not found.");
+diff --git a/6661e72999ce8b0e2b6f62809e8b2737-original/com/megacrit/cardcrawl/desktop/DesktopLauncher.java b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/DesktopLauncher.java
+index 5069aff..761c163 100644
+--- a/6661e72999ce8b0e2b6f62809e8b2737-original/com/megacrit/cardcrawl/desktop/DesktopLauncher.java
++++ b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/DesktopLauncher.java
+@@ -19,8 +19,412 @@ import java.util.Locale;
+ import org.apache.logging.log4j.LogManager;
+ import org.apache.logging.log4j.Logger;
+ 
++import java.util.ArrayList;
++import java.util.Collections;
++import java.text.MessageFormat;
++import com.megacrit.cardcrawl.actions.GameActionManager;
++import com.megacrit.cardcrawl.monsters.AbstractMonster;
++import com.megacrit.cardcrawl.monsters.MonsterQueueItem;
++import com.megacrit.cardcrawl.orbs.AbstractOrb;
++import com.megacrit.cardcrawl.powers.AbstractPower;
++import com.megacrit.cardcrawl.relics.AbstractRelic;
++import com.megacrit.cardcrawl.blights.AbstractBlight;
++import com.megacrit.cardcrawl.potions.AbstractPotion;
++import com.megacrit.cardcrawl.stances.AbstractStance;
++import com.megacrit.cardcrawl.cards.CardGroup;
++import com.megacrit.cardcrawl.cards.AbstractCard;
++import com.megacrit.cardcrawl.ui.panels.EnergyPanel;
++import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
++import com.megacrit.cardcrawl.rooms.AbstractRoom;
++import com.megacrit.cardcrawl.monsters.MonsterGroup;
++import com.megacrit.cardcrawl.rooms.CampfireUI;
++import com.megacrit.cardcrawl.rooms.MonsterRoom;
++import com.megacrit.cardcrawl.rooms.MonsterRoomElite;
++import com.megacrit.cardcrawl.rooms.MonsterRoomBoss;
++import com.megacrit.cardcrawl.rooms.RestRoom;
++import com.megacrit.cardcrawl.rooms.ShopRoom;
++import com.megacrit.cardcrawl.rooms.EventRoom;
++import com.megacrit.cardcrawl.rooms.TreasureRoom;
++import com.megacrit.cardcrawl.rooms.TreasureRoomBoss;
++import com.megacrit.cardcrawl.rooms.EmptyRoom;
++import com.megacrit.cardcrawl.characters.AbstractPlayer;
++import com.megacrit.cardcrawl.random.Random;
++import com.megacrit.cardcrawl.core.Settings;
++import com.megacrit.cardcrawl.helpers.TipTracker;
++import com.megacrit.cardcrawl.unlock.UnlockTracker;
++import com.megacrit.cardcrawl.helpers.FontHelper;
++import com.megacrit.cardcrawl.ui.panels.SeedPanel;
++import com.megacrit.cardcrawl.helpers.ModHelper;
++import com.megacrit.cardcrawl.screens.mainMenu.MainMenuScreen;
++import com.megacrit.cardcrawl.screens.custom.CustomModeScreen;
++import com.megacrit.cardcrawl.helpers.SaveHelper;
++import com.megacrit.cardcrawl.helpers.SeedHelper;
++import com.megacrit.cardcrawl.shop.ShopScreen;
++import com.megacrit.cardcrawl.helpers.CardHelper;
++import com.megacrit.cardcrawl.screens.DungeonTransitionScreen;
++
+ public class DesktopLauncher {
+     private static final Logger logger;
++    public static boolean monstersOnly = true;
++
++    public static String state2() {
++        String charClass = "";
++        if (CardCrawlGame.chosenCharacter != null) { charClass = CardCrawlGame.chosenCharacter.name(); }
++        boolean isPopupOpen = CardCrawlGame.isPopupOpen;
++
++        String json = MessageFormat.format("'{'\"player\": \"{0}\"'}'}", charClass);
++        return json;
++    }
++
++    public static String replaceLast(String text, String regex, String replacement) {
++        return text.replaceFirst("(?s)"+regex+"(?!.*?"+regex+")", replacement);
++    }
++
++    public static String buildJsonList(String members) {
++        String text = "[";
++        text = text.concat(replaceLast(members, ",", ""));
++        return text.concat("]");
++    }
++
++    public static String buildCardList(ArrayList<AbstractCard> cards) {
++        String cardText = "[";
++        for (AbstractCard card : cards)
++        {
++            String costNowStr = card.getCost();
++            Integer costNow = card.costForTurn;
++            if (card.cost == -1) {
++                costNow = EnergyPanel.totalCount;
++            }
++            if (card.freeToPlay()) {
++                costNow = 0;
++            }
++
++            cardText = cardText.concat("{");
++            cardText = cardText.concat(MessageFormat.format(
++                "\"id\": \"{0}\",\"type\": \"{1}\", \"target\": \"{2}\",\"cost\": {3}, \"costNow\": {4}, \"hasEnoughEnergy\": {5}, \"upgraded\": {6}, \"timesUpgraded\": {7}, \"canUpgrade\": {8}, \"rarity\": \"{9}\"",
++                card.cardID, card.type.name(), card.target.name(), card.cost, costNow, card.hasEnoughEnergy(), card.upgraded, card.timesUpgraded, card.canUpgrade(), card.rarity.name()));
++
++            //cardText = cardText.concat(MessageFormat.format("'{'\"inBottleFlame\": {0},\"inBottleLightning\": {1},\"inBottleTornado\": {2}, \"purgeOnUse\": {3},\"exhaustOnUseOnce\": {4}, \"exhaustOnFire\": {5}, \"freeToPlayOnce\": {6}, \"isInAutoplay\": {7}'}',",
++            //    card.inBottleFlame, card.inBottleLightning, card.inBottleTornado, card.purgeOnUse, card.exhaustOnUseOnce, card.exhaustOnFire, card.freeToPlayOnce, card.isInAutoplay));
++
++            //cardText = cardText.concat(MessageFormat.format("'{'\"price\": {0},\"retain\": {1},\"selfRetain\": {2}, \"dontTriggerOnUseCard\": {3},\"exhaust\": {4}, \"returnToHand\": {5}, \"shuffleBackIntoDrawPile\": {6}, \"isEthereal\": {7}'}',",
++            //    card.price, card.retain, card.selfRetain, card.dontTriggerOnUseCard, card.exhaust, card.returnToHand, card.shuffleBackIntoDrawPile, card.isEthereal));
++
++            //cardText = cardText.concat(MessageFormat.format(
++            //    "\"energyOnUse\": {0},\"ignoreEnergyOnUse\": {1},\"damageType\": \"{2}\",",
++            //    card.energyOnUse, card.ignoreEnergyOnUse, card.damageType.name()));
++
++            //cardText = cardText.concat(MessageFormat.format(
++            //    "'{'\"baseDamage\": {0},\"baseBlock\": {1},\"baseMagicNumber\": {2},\"baseHeal\": {3},\"baseDraw\": {4},\"baseDiscard\": {5},'}',",
++            //    card.baseDamage, card.baseBlock, card.baseMagicNumber, card.baseHeal, card.baseDraw, card.baseDiscard));
++            //cardText = cardText.concat(MessageFormat.format(
++            //    "\"damage\": {0},\"block\": {1},\"magicNumber\": {2},\"heal\": {3},\"draw\": {4},\"discard\": {5}",
++            //    card.damage, card.block, card.magicNumber, card.heal, card.draw, card.discard));
++            cardText = cardText.concat("},");
++        }
++        cardText = replaceLast(cardText, ",", "");
++        return cardText.concat("]");
++    }
++
++    public static String state() {
++        boolean isPopupOpen = CardCrawlGame.isPopupOpen;
++
++        //CardCrawlGame.dungeon.floorNum;
++        //CardCrawlGame.dungeon.actNum;
++
++        //public static MapRoomNode currMapNode;
++        //saveFile.current_room.equals(MonsterRoomBoss.class.getName())
++
++        //public static ArrayList<ArrayList<MapRoomNode>> map;
++        //CardCrawlGame.dungeon.map;
++        String currMapNodeRoomType = "";
++        // oh god hava..
++        if (AbstractDungeon.currMapNode != null && AbstractDungeon.currMapNode.room != null) {
++            if (AbstractDungeon.currMapNode.room instanceof MonsterRoom) {
++                currMapNodeRoomType = "MonsterRoom";
++            } else if (AbstractDungeon.currMapNode.room instanceof RestRoom) {
++                currMapNodeRoomType = "RestRoom";
++            } else if (AbstractDungeon.currMapNode.room instanceof ShopRoom) {
++                currMapNodeRoomType = "ShopRoom";
++            } else if (AbstractDungeon.currMapNode.room instanceof EventRoom) {
++                currMapNodeRoomType = "EventRoom";
++            } else if (AbstractDungeon.currMapNode.room instanceof TreasureRoom) {
++                currMapNodeRoomType = "TreasureRoom";
++            } else if (AbstractDungeon.currMapNode.room instanceof EmptyRoom) {
++                currMapNodeRoomType = "EmptyRoom";
++            } else if (AbstractDungeon.currMapNode.room instanceof MonsterRoomElite) {
++                currMapNodeRoomType = "MonsterRoomElite";
++            } else if (AbstractDungeon.currMapNode.room instanceof MonsterRoomBoss) {
++                currMapNodeRoomType = "MonsterRoomBoss";
++            } else if (AbstractDungeon.currMapNode.room instanceof TreasureRoomBoss) {
++                currMapNodeRoomType = "TreasureRoomBoss";
++            }
++        }
++
++        /*
++            public static CardRewardScreen cardRewardScreen;
++            public static CombatRewardScreen combatRewardScreen;
++            public static BossRelicSelectScreen bossRelicScreen;
++            public static MasterDeckViewScreen deckViewScreen;
++            public static DiscardPileViewScreen discardPileViewScreen;
++            public static DrawPileViewScreen gameDeckViewScreen;
++            public static ExhaustPileViewScreen exhaustPileViewScreen;
++            public static SettingsScreen settingsScreen;
++            public static InputSettingsScreen inputSettingsScreen;
++            public static DungeonMapScreen dungeonMapScreen;
++            public static GridCardSelectScreen gridSelectScreen;
++            public static HandCardSelectScreen handCardSelectScreen;
++            public static ShopScreen shopScreen;
++            public static CreditsScreen creditsScreen;
++            public static FtueTip ftue;
++            public static DeathScreen deathScreen;
++            public static VictoryScreen victoryScreen;
++            public static UnlockCharacterScreen unlockScreen;
++            public static NeowUnlockScreen gUnlockScreen;
++            public static boolean isScreenUp;
++
++            public static boolean isAscensionMode;
++            public static int ascensionLevel;
++        */
++        String screenType = "";
++        if (CardCrawlGame.dungeon.screen != null) { screenType = CardCrawlGame.dungeon.screen.name(); }
++        boolean isScreenUp = CardCrawlGame.dungeon.isScreenUp;
++
++        String json_fight = "{}";
++        try {
++
++            String monstersStr = "[]";
++            if (AbstractDungeon.currMapNode != null && AbstractDungeon.currMapNode.room != null && AbstractDungeon.currMapNode.room.monsters != null) {
++                ArrayList<AbstractMonster> monsters = CardCrawlGame.dungeon.currMapNode.room.monsters.monsters;
++
++                monstersStr = "";
++                for (AbstractMonster monster : monsters)
++                {
++                    String mobPowerStr = "";
++                    ArrayList<AbstractPower> mobPowers = monster.powers;
++                    for (AbstractPower power : mobPowers)
++                    {
++                        mobPowerStr = mobPowerStr.concat(MessageFormat.format("'{'\"id\": \"{0}\",\"amount\": {1},\"priority\": {2},\"type\": \"{3}\"'}',",
++                            power.ID, power.amount, power.priority, power.type.name()));
++                    }
++                    mobPowerStr = buildJsonList(mobPowerStr);
++
++                    monstersStr = monstersStr.concat(MessageFormat.format(
++                        "'{'\"id\": \"{0}\",\"type\": \"{1}\",\"intent\": \"{2}\",\"intentDmg\": {3},\"intentBaseDmg\": {4},\"intentMultiAmt\": {5},\"hp\": {6}, \"hpMax\": {7}, \"block\": {8}, \"powers\": {9}'}',",
++                        monster.id, monster.type.name(), monster.intent.name(),
++                        monster.intentDmg, monster.intentBaseDmg, monster.intentMultiAmt,
++                        monster.currentHealth, monster.maxHealth, monster.currentBlock, mobPowerStr));
++                }
++                monstersStr = buildJsonList(monstersStr);
++            }
++
++            int turn = GameActionManager.turn;
++            int damageReceivedThisTurn = GameActionManager.damageReceivedThisTurn;
++            int damageReceivedThisCombat = GameActionManager.damageReceivedThisCombat;
++            int hpLossThisCombat = GameActionManager.hpLossThisCombat;
++            int playerHpLastTurn = GameActionManager.playerHpLastTurn;
++            int energyGainedThisCombat = GameActionManager.energyGainedThisCombat;
++            boolean hasControl =  CardCrawlGame.dungeon.actionManager.hasControl;
++            json_fight = MessageFormat.format("'{'\"turn\": {0}, \"damageReceivedThisTurn\": {1}, \"damageReceivedThisCombat\": {2}, \"hpLossThisCombat\": {3}, \"hasControl\": {4}, \"monsters\": {5}'}'",
++                turn, damageReceivedThisTurn, damageReceivedThisCombat, hpLossThisCombat, hasControl, monstersStr);
++        } catch (Exception e) {
++            json_fight = "{}";
++        }
++
++        String json_player = "{}";
++        try {
++            String charClass = CardCrawlGame.dungeon.player.chosenClass.name();
++            int potionSlots = CardCrawlGame.dungeon.player.potionSlots;
++            int gold = CardCrawlGame.dungeon.player.gold;
++            int displayGold = CardCrawlGame.dungeon.player.displayGold;
++            boolean isDead = CardCrawlGame.dungeon.player.isDead;
++
++            int energy = EnergyPanel.totalCount;
++            int energyMax = CardCrawlGame.dungeon.player.energy.energy;
++
++            int currentHealth = CardCrawlGame.dungeon.player.currentHealth;
++            int maxHealth = CardCrawlGame.dungeon.player.maxHealth;
++            int currentBlock = CardCrawlGame.dungeon.player.currentBlock;
++            int damagedThisCombat = CardCrawlGame.dungeon.player.damagedThisCombat;
++            int cardsPlayedThisTurn = CardCrawlGame.dungeon.player.cardsPlayedThisTurn;
++
++            ArrayList<AbstractOrb> orbs = CardCrawlGame.dungeon.player.orbs;
++            int masterMaxOrbs = CardCrawlGame.dungeon.player.masterMaxOrbs;
++            int maxOrbs = CardCrawlGame.dungeon.player.maxOrbs;
++
++            String stance = CardCrawlGame.dungeon.player.stance.ID;
++
++            int gameHandSize = CardCrawlGame.dungeon.player.gameHandSize;
++            int masterHandSize = CardCrawlGame.dungeon.player.masterHandSize;
++
++            ArrayList<AbstractCard> masterDeck = CardCrawlGame.dungeon.player.masterDeck.group;
++            ArrayList<AbstractCard> hand = CardCrawlGame.dungeon.player.hand.group;
++            ArrayList<AbstractCard> drawPile = CardCrawlGame.dungeon.player.drawPile.group;
++            ArrayList<AbstractCard> discardPile = CardCrawlGame.dungeon.player.discardPile.group;
++            ArrayList<AbstractCard> exhaustPile = CardCrawlGame.dungeon.player.exhaustPile.group;
++            ArrayList<AbstractCard> limbo = CardCrawlGame.dungeon.player.limbo.group;
++
++            String masterDeckStr = buildCardList(masterDeck);
++            String handStr = buildCardList(hand);
++            String drawPileStr = buildCardList(drawPile);
++            String discardPileStr = buildCardList(discardPile);
++            String exhaustPileStr = buildCardList(exhaustPile);
++            String limboStr = buildCardList(limbo);
++
++            String relicStr = "";
++            ArrayList<AbstractRelic> relics = CardCrawlGame.dungeon.player.relics;
++            for (AbstractRelic relic : relics)
++            {
++                relicStr = relicStr.concat(MessageFormat.format("'{'\"id\": \"{0}\",\"counter\": {1}, \"usedUp\": {2}, \"cost\": {3}'}',",
++                    relic.relicId, relic.counter, relic.usedUp, relic.cost));
++            }
++            relicStr = buildJsonList(relicStr);
++
++
++            String blightStr = "";
++            ArrayList<AbstractBlight> blights = CardCrawlGame.dungeon.player.blights;
++            for (AbstractBlight blight : blights)
++            {
++                blightStr = blightStr.concat(MessageFormat.format("'{'\"name\": \"{0}\",\"id\": \"{1}\",\"counter\": {2}'}',",
++                    blight.name, blight.blightID, blight.counter));
++            }
++            blightStr = buildJsonList(blightStr);
++
++
++            String potionStr = "";
++            ArrayList<AbstractPotion> potions = CardCrawlGame.dungeon.player.potions;
++            for (AbstractPotion potion : potions)
++            {
++                if (potion.slot != -1) {
++                    potionStr = potionStr.concat(MessageFormat.format("'{'\"id\": \"{0}\",\"slot\": {1}'}',",
++                        potion.ID, potion.slot));
++                }
++            }
++            potionStr = buildJsonList(potionStr);
++
++
++            String powerStr = "";
++            ArrayList<AbstractPower> powers = CardCrawlGame.dungeon.player.powers;
++            for (AbstractPower power : powers)
++            {
++                powerStr = powerStr.concat(MessageFormat.format("'{'\"id\": \"{0}\",\"amount\": {1},\"priority\": {2},\"type\": \"{3}\"'}',",
++                    power.ID, power.amount, power.priority, power.type.name()));
++            }
++            powerStr = buildJsonList(powerStr);
++
++            json_player = "{";
++            json_player = json_player.concat(MessageFormat.format("\"class\": \"{0}\", \"potionSlots\": {1}, \"gold\": {2}, \"displayGold\": {3}, \"isDead\": {4}",
++                charClass, potionSlots, gold, displayGold, isDead));
++            json_player = json_player.concat(MessageFormat.format(", \"energy\": {0}, \"energyMax\": {1}, \"hp\": {2}, \"hpMax\": {3}, \"block\": {4}",
++                energy, energyMax, currentHealth, maxHealth, currentBlock));
++            json_player = json_player.concat(MessageFormat.format(", \"timesDamagedThisCombat\": {0}, \"cardsPlayedThisTurn\": {1}, \"masterMaxOrbs\": {2}, \"maxOrbs\": {3}, \"stance\": \"{4}\"",
++                damagedThisCombat, cardsPlayedThisTurn, masterMaxOrbs, maxOrbs, stance));
++            json_player = json_player.concat(MessageFormat.format(", \"relics\": {0}, \"blights\": {1}, \"potions\": {2}, \"powers\": {3}",
++                relicStr, blightStr, potionStr, powerStr));
++            json_player = json_player.concat(MessageFormat.format(", \"gameHandSize\": {0}, \"masterHandSize\": {1}, \"masterDeck\": {2},\"drawPile\": {3},\"discardPile\": {4},\"exhaustPile\": {5},\"limbo\": {6},\"hand\": {7}",
++                gameHandSize, masterHandSize, masterDeckStr, drawPileStr, discardPileStr, exhaustPileStr, limboStr, handStr));
++            json_player = json_player.concat("}");
++        } catch (Exception e) {
++            json_player = "{}";
++        }
++
++        String cardPopupJson = "null";
++        if (CardCrawlGame.cardPopup.isOpen) {
++        }
++        String relicPopupJson = "null";
++        if (CardCrawlGame.relicPopup.isOpen) {
++        }
++        String menu = MessageFormat.format("'{'\"cardPopup\": {0}, \"relicPopup\": {1}'}'",
++            cardPopupJson, relicPopupJson);
++
++        String json_game = MessageFormat.format("'{'\"inRun\": {0}, \"screenType\": {1}'}'",
++            CardCrawlGame.isInARun(), screenType);
++
++        String json = MessageFormat.format("'{'\"player\": {0}, \"fight\": {1}, \"game\": {2}, \"screenType\": \"{3}\", \"isScreenUp\": \"{4}\", \"currMapNodeRoomType\": \"{5}\", \"isPopupOpen\": \"{6}\"'}'",
++            json_player, json_fight, json_game, screenType, isScreenUp, currMapNodeRoomType, isPopupOpen);
++        return json;
++    }
++
++    public static void playCard(int cardIndex) {
++        AbstractCard card = CardCrawlGame.dungeon.player.hand.group.get(cardIndex);
++
++        CardCrawlGame.dungeon.player.hoveredCard = card;
++        CardCrawlGame.dungeon.player.playCard();
++    }
++
++    public static void playCard(int cardIndex, int monsterIndex) {
++        AbstractCard card = CardCrawlGame.dungeon.player.hand.group.get(cardIndex);
++        AbstractMonster monster = CardCrawlGame.dungeon.currMapNode.room.monsters.monsters.get(monsterIndex);
++
++        CardCrawlGame.dungeon.player.hoveredCard = card;
++        CardCrawlGame.dungeon.player.hoveredMonster = monster;
++        CardCrawlGame.dungeon.player.playCard();
++    }
++
++    public static void endTurn() {
++        AbstractDungeon.currMapNode.room.endTurn();
++    }
++
++    public static void setSeed(Long seed) {
++        logger.info("Setting seed: " + seed);
++        Settings.seed = seed;
++        AbstractDungeon.monsterRng = new Random(seed);
++        AbstractDungeon.eventRng = new Random(seed);
++        AbstractDungeon.merchantRng = new Random(seed);
++        AbstractDungeon.cardRng = new Random(seed);
++        AbstractDungeon.treasureRng = new Random(seed);
++        AbstractDungeon.relicRng = new Random(seed);
++        AbstractDungeon.monsterHpRng = new Random(seed);
++        AbstractDungeon.potionRng = new Random(seed);
++        AbstractDungeon.aiRng = new Random(seed);
++        AbstractDungeon.shuffleRng = new Random(seed);
++        AbstractDungeon.cardRandomRng = new Random(seed);
++        AbstractDungeon.miscRng = new Random(seed);
++    }
++
++    public static void startDungeon(Long seed) {
++        if (CardCrawlGame.chosenCharacter != null) {
++            CardCrawlGame.startOver();
++            while (true) {
++                if (CardCrawlGame.mode == CardCrawlGame.GameMode.CHAR_SELECT)
++                    break;
++               try{ Thread.sleep(10);} catch(InterruptedException e){}
++            }
++        }
++        setSeed(seed);
++        Settings.FAST_MODE = true;
++        //Settings.ACTION_DUR_XFAST = 0.01f;
++        //Settings.ACTION_DUR_FASTER = 0.01f;
++        //Settings.ACTION_DUR_FAST = 0.01f;
++        //Settings.ACTION_DUR_MED = 0.01f;
++
++        TipTracker.showAgain("NEOW_SKIP");
++
++        AbstractDungeon.screen = AbstractDungeon.CurrentScreen.NONE;
++
++        CardCrawlGame.loadingSave = false;
++        CardCrawlGame.chosenCharacter = AbstractPlayer.PlayerClass.IRONCLAD;
++        CardCrawlGame.mode = CardCrawlGame.GameMode.CHAR_SELECT;
++        CardCrawlGame.mainMenuScreen.fadedOut = true;
++    }
++
++
++    public static void main_silent() {
++        LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
++        config.setDisplayModeCallback = new STSDisplayModeCallback();
++        config.addIcon("images/ui/icon.png", Files.FileType.Internal);
++        config.resizable = false;
++        config.title = "Slay the Spire";
++        DesktopLauncher.loadSettings(config);
++        Gdx.audio = null;
++        config.disableAudio = true;
++        new LwjglApplication((ApplicationListener)new CardCrawlGame(config.preferencesDirectory), config);
++    }
++
++    public static void main() {
++        String[] args = {""};
++        DesktopLauncher.main(args);
++    }
+ 
+     public static void main(String[] arg) {
+         logger.info("time: " + System.currentTimeMillis());
+@@ -38,6 +442,8 @@ public class DesktopLauncher {
+         STSSentry.setup();
+         try {
+             LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
++            Gdx.audio = null;
++            config.disableAudio = true;
+             config.setDisplayModeCallback = new STSDisplayModeCallback();
+             config.addIcon("images/ui/icon.png", Files.FileType.Internal);
+             config.resizable = false;
+diff --git a/6661e72999ce8b0e2b6f62809e8b2737-original/com/megacrit/cardcrawl/monsters/AbstractMonster.java b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/monsters/AbstractMonster.java
+index 57755e5..d8b3e16 100644
+--- a/6661e72999ce8b0e2b6f62809e8b2737-original/com/megacrit/cardcrawl/monsters/AbstractMonster.java
++++ b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/monsters/AbstractMonster.java
+@@ -78,15 +78,15 @@ extends AbstractCreature {
+     private Color nameBgColor = new Color(0.0f, 0.0f, 0.0f, 0.0f);
+     protected Texture img;
+     public boolean tintFadeOutCalled = false;
+-    protected HashMap<Byte, String> moveSet = new HashMap();
++    public HashMap<Byte, String> moveSet = new HashMap();
+     public boolean escaped = false;
+     public boolean escapeNext = false;
+-    private PowerTip intentTip = new PowerTip();
++    public PowerTip intentTip = new PowerTip();
+     public EnemyType type = EnemyType.NORMAL;
+     private float hoverTimer = 0.0f;
+     public boolean cannotEscape = false;
+     public ArrayList<DamageInfo> damage = new ArrayList();
+-    private EnemyMoveInfo move;
++    public EnemyMoveInfo move;
+     private float intentParticleTimer = 0.0f;
+     private float intentAngle = 0.0f;
+     public ArrayList<Byte> moveHistory = new ArrayList();
+@@ -103,10 +103,10 @@ extends AbstractCreature {
+     public float intentOffsetX = 0.0f;
+     private Texture intentImg = null;
+     private Texture intentBg = null;
+-    private int intentDmg = -1;
+-    private int intentBaseDmg = -1;
+-    private int intentMultiAmt = 0;
+-    private boolean isMultiDmg = false;
++    public int intentDmg = -1;
++    public int intentBaseDmg = -1;
++    public int intentMultiAmt = 0;
++    public boolean isMultiDmg = false;
+     private Color intentColor = Color.WHITE.cpy();
+     public String moveName = null;
+     protected List<Disposable> disposables = new ArrayList<Disposable>();
