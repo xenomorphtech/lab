@@ -5,23 +5,23 @@ Machine Learning Experiments
 
 # references
 
-https://github.com/doctorcorral/gyx (huge thanks, very quick to understand)
-https://github.com/openai/baselines
-https://github.com/openai/gym
+https://github.com/doctorcorral/gyx (huge thanks, very quick to understand)  
+https://github.com/openai/baselines  
+https://github.com/openai/gym  
 
 # readings
 
-https://www.freecodecamp.org/news/a-brief-introduction-to-reinforcement-learning-7799af5840db/
-https://www.freecodecamp.org/news/an-introduction-to-q-learning-reinforcement-learning-14ac0b4493cc/
-
-https://www.youtube.com/watch?v=oOmcGQXJRXM
-https://github.com/pythonlessons/Reinforcement_Learning
+https://www.freecodecamp.org/news/a-brief-introduction-to-reinforcement-learning-7799af5840db/  
+https://www.freecodecamp.org/news/an-introduction-to-q-learning-reinforcement-learning-14ac0b4493cc/  
+  
+https://www.youtube.com/watch?v=oOmcGQXJRXM  
+https://github.com/pythonlessons/Reinforcement_Learning  
 
 # deps (todo podman)
 
-libblas-dev
-pip3 install gym
-pip3 install gym[atari]
+libblas-dev  
+pip3 install gym  
+pip3 install gym[atari]  
 
 # goals
 
@@ -54,6 +54,10 @@ Download cfr java decompiler. `wget https://www.benf.org/other/cfr/cfr-0.151.jar
 Cd into and look at `./priv/slay_the_spire/build.sh` and eventually run it to get the work environment setup.
 
 ./priv/slay_the_spire/config/ directory contains the base save file + all unlocks
+
+Apply patch_final.diff into your 6661e72999ce8b0e2b6f62809e8b2737/ dir
+
+run build.sh again
 
 
 Updating!

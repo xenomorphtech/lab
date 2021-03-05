@@ -2307,7 +2307,7 @@ index 3ac8b89..2ae7bfb 100644
          }
 diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/DesktopLauncher.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/DesktopLauncher.class
 new file mode 100644
-index 0000000..dd9a8e7
+index 0000000..822d859
 Binary files /dev/null and b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/DesktopLauncher.class differ
 diff --git a/6661e72999ce8b0e2b6f62809e8b2737-original/com/megacrit/cardcrawl/desktop/DesktopLauncher.java b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/DesktopLauncher.java
 index 5069aff..744bbac 100644
@@ -3164,6 +3164,77 @@ index f8c44a3..cef454c 100644
      }
  
      @Override
+diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/CardLibrary$1.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/CardLibrary$1.class
+new file mode 100644
+index 0000000..57a73e4
+Binary files /dev/null and b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/CardLibrary$1.class differ
+diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/CardLibrary$LibraryType.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/CardLibrary$LibraryType.class
+new file mode 100644
+index 0000000..77b0256
+Binary files /dev/null and b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/CardLibrary$LibraryType.class differ
+diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/CardLibrary.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/CardLibrary.class
+new file mode 100644
+index 0000000..1422aa9
+Binary files /dev/null and b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/CardLibrary.class differ
+diff --git a/6661e72999ce8b0e2b6f62809e8b2737-original/com/megacrit/cardcrawl/helpers/CardLibrary.java b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/CardLibrary.java
+index 1d6299d..fa0e1b7 100644
+--- a/6661e72999ce8b0e2b6f62809e8b2737-original/com/megacrit/cardcrawl/helpers/CardLibrary.java
++++ b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/CardLibrary.java
+@@ -450,7 +450,7 @@ public class CardLibrary {
+ 
+     private static void addRedCards() {
+         CardLibrary.add(new Anger());
+-        CardLibrary.add(new Armaments());
++        //CardLibrary.add(new Armaments());
+         CardLibrary.add(new Barricade());
+         CardLibrary.add(new Bash());
+         CardLibrary.add(new BattleTrance());
+@@ -460,7 +460,7 @@ public class CardLibrary {
+         CardLibrary.add(new Bludgeon());
+         CardLibrary.add(new BodySlam());
+         CardLibrary.add(new Brutality());
+-        CardLibrary.add(new BurningPact());
++        //CardLibrary.add(new BurningPact());
+         CardLibrary.add(new Carnage());
+         CardLibrary.add(new Clash());
+         CardLibrary.add(new Cleave());
+@@ -476,7 +476,7 @@ public class CardLibrary {
+         CardLibrary.add(new DualWield());
+         CardLibrary.add(new Entrench());
+         CardLibrary.add(new Evolve());
+-        CardLibrary.add(new Exhume());
++        //CardLibrary.add(new Exhume());
+         CardLibrary.add(new Feed());
+         CardLibrary.add(new FeelNoPain());
+         CardLibrary.add(new FiendFire());
+@@ -485,12 +485,12 @@ public class CardLibrary {
+         CardLibrary.add(new Flex());
+         CardLibrary.add(new GhostlyArmor());
+         CardLibrary.add(new Havoc());
+-        CardLibrary.add(new Headbutt());
++        //CardLibrary.add(new Headbutt());
+         CardLibrary.add(new HeavyBlade());
+         CardLibrary.add(new Hemokinesis());
+         CardLibrary.add(new Immolate());
+         CardLibrary.add(new Impervious());
+-        CardLibrary.add(new InfernalBlade());
++        //CardLibrary.add(new InfernalBlade());
+         CardLibrary.add(new Inflame());
+         CardLibrary.add(new Intimidate());
+         CardLibrary.add(new IronWave());
+@@ -518,10 +518,10 @@ public class CardLibrary {
+         CardLibrary.add(new Strike_Red());
+         CardLibrary.add(new SwordBoomerang());
+         CardLibrary.add(new ThunderClap());
+-        CardLibrary.add(new TrueGrit());
++        //CardLibrary.add(new TrueGrit());
+         CardLibrary.add(new TwinStrike());
+         CardLibrary.add(new Uppercut());
+-        CardLibrary.add(new Warcry());
++        //CardLibrary.add(new Warcry());
+         CardLibrary.add(new Whirlwind());
+         CardLibrary.add(new WildStrike());
+     }
 diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/SaveHelper$1.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/SaveHelper$1.class
 new file mode 100644
 index 0000000..85d079e
