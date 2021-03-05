@@ -33,7 +33,7 @@ pip3 install gym[atari]
 
 # slay_the_spire
 At 1x speed, we can improve
-![stsdemo-2021-03-05_01 03 00](https://user-images.githubusercontent.com/3028982/110075475-da677100-7d50-11eb-9bb8-6e673c61795c.gif)
+![stsdemo-2021-03-05_01 26 11](https://user-images.githubusercontent.com/3028982/110076204-1e0eaa80-7d52-11eb-9837-794147695b3d.gif)
 
 ```
 Modding notes!
