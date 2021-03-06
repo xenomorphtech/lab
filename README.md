@@ -42,8 +42,7 @@ We need to make some modifications to slay_the_spire, to expose a GYM API ontop 
 Some cards are currently removed due to complexity to implement them atm, check CardLibrary.java.
 Dont modifiy `AbstractDungeon.java` if decompiled by CFR, it subtly breaks the RNG generator.
 Alot more work is needed to make the actions faster and never crash.
-SlayTheSpire.test_hardcoded_onlymobs() gives a good indication on the level of optimization, currently the run takes me about 5100ms.
-
+SlayTheSpire.test_hardcoded_onlymobs_nocards() gives a good indication on the level of optimization, currently the run takes me about 5100ms.
 
 
 Getting started!

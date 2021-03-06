@@ -2307,13 +2307,13 @@ index 3ac8b89..2ae7bfb 100644
          }
 diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/DesktopLauncher.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/DesktopLauncher.class
 new file mode 100644
-index 0000000..822d859
+index 0000000..6471faf
 Binary files /dev/null and b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/DesktopLauncher.class differ
 diff --git a/6661e72999ce8b0e2b6f62809e8b2737-original/com/megacrit/cardcrawl/desktop/DesktopLauncher.java b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/DesktopLauncher.java
-index 5069aff..744bbac 100644
+index 5069aff..0a3a94a 100644
 --- a/6661e72999ce8b0e2b6f62809e8b2737-original/com/megacrit/cardcrawl/desktop/DesktopLauncher.java
 +++ b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/DesktopLauncher.java
-@@ -19,8 +19,753 @@ import java.util.Locale;
+@@ -19,8 +19,754 @@ import java.util.Locale;
  import org.apache.logging.log4j.LogManager;
  import org.apache.logging.log4j.Logger;
  
@@ -3019,9 +3019,6 @@ index 5069aff..744bbac 100644
 +    }
 +
 +    public static void startDungeon(Long seed) {
-+        if (monstersOnly)
-+            ModHelper.setMods(Arrays.asList("Uncertain Future"));
-+
 +        if (CardCrawlGame.chosenCharacter != null) {
 +            AbstractDungeon.firstRoomChosen = false;
 +            CardCrawlGame.startOver();
@@ -3031,6 +3028,10 @@ index 5069aff..744bbac 100644
 +               try{ Thread.sleep(10);} catch(InterruptedException e){}
 +            }
 +        }
++
++        if (monstersOnly)
++            ModHelper.setMods(Arrays.asList("Uncertain Future"));
++
 +        setSeed(seed);
 +        Settings.FAST_MODE = true;
 +        //Settings.ACTION_DUR_XFAST = 0.01f;
@@ -3068,7 +3069,7 @@ index 5069aff..744bbac 100644
  
      public static void main(String[] arg) {
          logger.info("time: " + System.currentTimeMillis());
-@@ -38,11 +783,14 @@ public class DesktopLauncher {
+@@ -38,11 +784,14 @@ public class DesktopLauncher {
          STSSentry.setup();
          try {
              LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
@@ -3166,15 +3167,15 @@ index f8c44a3..cef454c 100644
      @Override
 diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/CardLibrary$1.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/CardLibrary$1.class
 new file mode 100644
-index 0000000..57a73e4
+index 0000000..a0caa35
 Binary files /dev/null and b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/CardLibrary$1.class differ
 diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/CardLibrary$LibraryType.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/CardLibrary$LibraryType.class
 new file mode 100644
-index 0000000..77b0256
+index 0000000..7aa9194
 Binary files /dev/null and b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/CardLibrary$LibraryType.class differ
 diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/CardLibrary.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/CardLibrary.class
 new file mode 100644
-index 0000000..1422aa9
+index 0000000..f3348bf
 Binary files /dev/null and b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/CardLibrary.class differ
 diff --git a/6661e72999ce8b0e2b6f62809e8b2737-original/com/megacrit/cardcrawl/helpers/CardLibrary.java b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/CardLibrary.java
 index 1d6299d..fa0e1b7 100644
@@ -3235,6 +3236,232 @@ index 1d6299d..fa0e1b7 100644
          CardLibrary.add(new Whirlwind());
          CardLibrary.add(new WildStrike());
      }
+diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/RelicLibrary$1.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/RelicLibrary$1.class
+new file mode 100644
+index 0000000..25722a6
+Binary files /dev/null and b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/RelicLibrary$1.class differ
+diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/RelicLibrary.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/RelicLibrary.class
+new file mode 100644
+index 0000000..e473530
+Binary files /dev/null and b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/RelicLibrary.class differ
+diff --git a/6661e72999ce8b0e2b6f62809e8b2737-original/com/megacrit/cardcrawl/helpers/RelicLibrary.java b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/RelicLibrary.java
+index 56ba6ac..d515600 100644
+--- a/6661e72999ce8b0e2b6f62809e8b2737-original/com/megacrit/cardcrawl/helpers/RelicLibrary.java
++++ b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/RelicLibrary.java
+@@ -222,51 +222,51 @@ public class RelicLibrary {
+         RelicLibrary.add(new Abacus());
+         RelicLibrary.add(new Akabeko());
+         RelicLibrary.add(new Anchor());
+-        RelicLibrary.add(new AncientTeaSet());
++        //RelicLibrary.add(new AncientTeaSet());
+         RelicLibrary.add(new ArtOfWar());
+-        RelicLibrary.add(new Astrolabe());
++        //RelicLibrary.add(new Astrolabe());
+         RelicLibrary.add(new BagOfMarbles());
+         RelicLibrary.add(new BagOfPreparation());
+         RelicLibrary.add(new BirdFacedUrn());
+-        RelicLibrary.add(new BlackStar());
++        //RelicLibrary.add(new BlackStar());
+         RelicLibrary.add(new BloodVial());
+         RelicLibrary.add(new BloodyIdol());
+-        RelicLibrary.add(new BlueCandle());
++        //RelicLibrary.add(new BlueCandle());
+         RelicLibrary.add(new Boot());
+-        RelicLibrary.add(new BottledFlame());
+-        RelicLibrary.add(new BottledLightning());
+-        RelicLibrary.add(new BottledTornado());
++        //RelicLibrary.add(new BottledFlame());
++        //RelicLibrary.add(new BottledLightning());
++        //RelicLibrary.add(new BottledTornado());
+         RelicLibrary.add(new BronzeScales());
+-        RelicLibrary.add(new BustedCrown());
++        //RelicLibrary.add(new BustedCrown());
+         RelicLibrary.add(new Calipers());
+-        RelicLibrary.add(new CallingBell());
++        //RelicLibrary.add(new CallingBell());
+         RelicLibrary.add(new CaptainsWheel());
+         RelicLibrary.add(new Cauldron());
+         RelicLibrary.add(new CentennialPuzzle());
+-        RelicLibrary.add(new CeramicFish());
++        //RelicLibrary.add(new CeramicFish());
+         RelicLibrary.add(new ChemicalX());
+         RelicLibrary.add(new ClockworkSouvenir());
+-        RelicLibrary.add(new CoffeeDripper());
+-        RelicLibrary.add(new Courier());
++        //RelicLibrary.add(new CoffeeDripper());
++        //RelicLibrary.add(new Courier());
+         RelicLibrary.add(new CultistMask());
+-        RelicLibrary.add(new CursedKey());
+-        RelicLibrary.add(new DarkstonePeriapt());
+-        RelicLibrary.add(new DeadBranch());
+-        RelicLibrary.add(new DollysMirror());
+-        RelicLibrary.add(new DreamCatcher());
++        //RelicLibrary.add(new CursedKey());
++        //RelicLibrary.add(new DarkstonePeriapt());
++        //RelicLibrary.add(new DeadBranch());
++        //RelicLibrary.add(new DollysMirror());
++        //RelicLibrary.add(new DreamCatcher());
+         RelicLibrary.add(new DuVuDoll());
+-        RelicLibrary.add(new Ectoplasm());
+-        RelicLibrary.add(new EmptyCage());
++        //RelicLibrary.add(new Ectoplasm());
++        //RelicLibrary.add(new EmptyCage());
+         RelicLibrary.add(new Enchiridion());
+-        RelicLibrary.add(new EternalFeather());
++        //RelicLibrary.add(new EternalFeather());
+         RelicLibrary.add(new FaceOfCleric());
+         RelicLibrary.add(new FossilizedHelix());
+-        RelicLibrary.add(new FrozenEgg2());
+-        RelicLibrary.add(new FrozenEye());
+-        RelicLibrary.add(new FusionHammer());
+-        RelicLibrary.add(new GamblingChip());
++        //RelicLibrary.add(new FrozenEgg2());
++        //RelicLibrary.add(new FrozenEye());
++        //RelicLibrary.add(new FusionHammer());
++        //RelicLibrary.add(new GamblingChip());
+         RelicLibrary.add(new Ginger());
+-        RelicLibrary.add(new Girya());
++        //RelicLibrary.add(new Girya());
+         RelicLibrary.add(new GoldenIdol());
+         RelicLibrary.add(new GremlinHorn());
+         RelicLibrary.add(new GremlinMask());
+@@ -276,87 +276,87 @@ public class RelicLibrary {
+         RelicLibrary.add(new IceCream());
+         RelicLibrary.add(new IncenseBurner());
+         RelicLibrary.add(new InkBottle());
+-        RelicLibrary.add(new JuzuBracelet());
++        //RelicLibrary.add(new JuzuBracelet());
+         RelicLibrary.add(new Kunai());
+         RelicLibrary.add(new Lantern());
+         RelicLibrary.add(new LetterOpener());
+         RelicLibrary.add(new LizardTail());
+         RelicLibrary.add(new Mango());
+-        RelicLibrary.add(new MarkOfTheBloom());
+-        RelicLibrary.add(new Matryoshka());
+-        RelicLibrary.add(new MawBank());
+-        RelicLibrary.add(new MealTicket());
++        //RelicLibrary.add(new MarkOfTheBloom());
++        //RelicLibrary.add(new Matryoshka());
++        //RelicLibrary.add(new MawBank());
++        //RelicLibrary.add(new MealTicket());
+         RelicLibrary.add(new MeatOnTheBone());
+-        RelicLibrary.add(new MedicalKit());
+-        RelicLibrary.add(new MembershipCard());
++        //RelicLibrary.add(new MedicalKit());
++        //RelicLibrary.add(new MembershipCard());
+         RelicLibrary.add(new MercuryHourglass());
+-        RelicLibrary.add(new MoltenEgg2());
++        //RelicLibrary.add(new MoltenEgg2());
+         RelicLibrary.add(new MummifiedHand());
+         RelicLibrary.add(new MutagenicStrength());
+-        RelicLibrary.add(new Necronomicon());
++        //RelicLibrary.add(new Necronomicon());
+         RelicLibrary.add(new NeowsLament());
+-        RelicLibrary.add(new NilrysCodex());
+-        RelicLibrary.add(new NlothsGift());
+-        RelicLibrary.add(new NlothsMask());
++        //RelicLibrary.add(new NilrysCodex());
++        //RelicLibrary.add(new NlothsGift());
++        //RelicLibrary.add(new NlothsMask());
+         RelicLibrary.add(new Nunchaku());
+         RelicLibrary.add(new OddlySmoothStone());
+         RelicLibrary.add(new OddMushroom());
+         RelicLibrary.add(new OldCoin());
+-        RelicLibrary.add(new Omamori());
++        //RelicLibrary.add(new Omamori());
+         RelicLibrary.add(new OrangePellets());
+         RelicLibrary.add(new Orichalcum());
+         RelicLibrary.add(new OrnamentalFan());
+-        RelicLibrary.add(new Orrery());
+-        RelicLibrary.add(new PandorasBox());
+-        RelicLibrary.add(new Pantograph());
+-        RelicLibrary.add(new PeacePipe());
++        //RelicLibrary.add(new Orrery());
++        //RelicLibrary.add(new PandorasBox());
++        //RelicLibrary.add(new Pantograph());
++        //RelicLibrary.add(new PeacePipe());
+         RelicLibrary.add(new Pear());
+         RelicLibrary.add(new PenNib());
+         RelicLibrary.add(new PhilosopherStone());
+         RelicLibrary.add(new Pocketwatch());
+-        RelicLibrary.add(new PotionBelt());
+-        RelicLibrary.add(new PrayerWheel());
+-        RelicLibrary.add(new PreservedInsect());
+-        RelicLibrary.add(new PrismaticShard());
+-        RelicLibrary.add(new QuestionCard());
++        //RelicLibrary.add(new PotionBelt());
++        //RelicLibrary.add(new PrayerWheel());
++        //RelicLibrary.add(new PreservedInsect());
++        //RelicLibrary.add(new PrismaticShard());
++        //RelicLibrary.add(new QuestionCard());
+         RelicLibrary.add(new RedMask());
+-        RelicLibrary.add(new RegalPillow());
+-        RelicLibrary.add(new RunicDome());
++        //RelicLibrary.add(new RegalPillow());
++        //RelicLibrary.add(new RunicDome());
+         RelicLibrary.add(new RunicPyramid());
+         RelicLibrary.add(new SacredBark());
+-        RelicLibrary.add(new Shovel());
++        //RelicLibrary.add(new Shovel());
+         RelicLibrary.add(new Shuriken());
+-        RelicLibrary.add(new SingingBowl());
++        //RelicLibrary.add(new SingingBowl());
+         RelicLibrary.add(new SlaversCollar());
+         RelicLibrary.add(new Sling());
+-        RelicLibrary.add(new SmilingMask());
+-        RelicLibrary.add(new SneckoEye());
+-        RelicLibrary.add(new Sozu());
++        //RelicLibrary.add(new SmilingMask());
++        //RelicLibrary.add(new SneckoEye());
++        //RelicLibrary.add(new Sozu());
+         RelicLibrary.add(new SpiritPoop());
+-        RelicLibrary.add(new SsserpentHead());
++        //RelicLibrary.add(new SsserpentHead());
+         RelicLibrary.add(new StoneCalendar());
+         RelicLibrary.add(new StrangeSpoon());
+         RelicLibrary.add(new Strawberry());
+         RelicLibrary.add(new StrikeDummy());
+         RelicLibrary.add(new Sundial());
+         RelicLibrary.add(new ThreadAndNeedle());
+-        RelicLibrary.add(new TinyChest());
+-        RelicLibrary.add(new TinyHouse());
+-        RelicLibrary.add(new Toolbox());
++        //RelicLibrary.add(new TinyChest());
++        //RelicLibrary.add(new TinyHouse());
++        //RelicLibrary.add(new Toolbox());
+         RelicLibrary.add(new Torii());
+-        RelicLibrary.add(new ToxicEgg2());
++        //RelicLibrary.add(new ToxicEgg2());
+         RelicLibrary.add(new ToyOrnithopter());
+         RelicLibrary.add(new TungstenRod());
+         RelicLibrary.add(new Turnip());
+         RelicLibrary.add(new UnceasingTop());
+         RelicLibrary.add(new Vajra());
+-        RelicLibrary.add(new VelvetChoker());
++        //RelicLibrary.add(new VelvetChoker());
+         RelicLibrary.add(new Waffle());
+         RelicLibrary.add(new WarPaint());
+         RelicLibrary.add(new WarpedTongs());
+         RelicLibrary.add(new Whetstone());
+-        RelicLibrary.add(new WhiteBeast());
+-        RelicLibrary.add(new WingBoots());
++        //RelicLibrary.add(new WhiteBeast());
++        //RelicLibrary.add(new WingBoots());
+         RelicLibrary.addGreen(new HoveringKite());
+         RelicLibrary.addGreen(new NinjaScroll());
+         RelicLibrary.addGreen(new PaperCrane());
+@@ -390,9 +390,9 @@ public class RelicLibrary {
+         RelicLibrary.addBlue(new SymbioticVirus());
+         RelicLibrary.addPurple(new CloakClasp());
+         RelicLibrary.addPurple(new Damaru());
+-        RelicLibrary.addPurple(new GoldenEye());
++        //RelicLibrary.addPurple(new GoldenEye());
+         RelicLibrary.addPurple(new HolyWater());
+-        RelicLibrary.addPurple(new Melange());
++        //RelicLibrary.addPurple(new Melange());
+         RelicLibrary.addPurple(new PureWater());
+         RelicLibrary.addPurple(new VioletLotus());
+         RelicLibrary.addPurple(new TeardropLocket());
 diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/SaveHelper$1.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/SaveHelper$1.class
 new file mode 100644
 index 0000000..85d079e

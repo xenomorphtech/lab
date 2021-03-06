@@ -47,6 +47,10 @@ defmodule SlayTheSpire do
         map = observe(ex_gym)
     end
 
+    def observe_floats(ex_gym) do
+        map = observe(ex_gym)
+    end
+
     def action_setCurrMapNode(ex_gym, x, y) do
         :void = :java.call_static(ex_gym.jvm,:'com.megacrit.cardcrawl.desktop.DesktopLauncher', :setCurrMapNode2, [x,y])
         Process.sleep(100)
@@ -58,6 +62,7 @@ defmodule SlayTheSpire do
         else
             :void = :java.call_static(ex_gym.jvm,:'com.megacrit.cardcrawl.desktop.DesktopLauncher', :playCard, [card_idx, target_idx])
         end
+        Process.sleep(10)
     end
 
     def action_endTurn(ex_gym) do
@@ -71,16 +76,21 @@ defmodule SlayTheSpire do
 
     def action_claimReward(ex_gym, reward_idx) do
         :void = :java.call_static(ex_gym.jvm,:'com.megacrit.cardcrawl.desktop.DesktopLauncher', :claimReward, [reward_idx])
+        Process.sleep(50)
     end
 
     def action_claimCardReward(ex_gym, reward_idx, card_idx) do
         :void = :java.call_static(ex_gym.jvm,:'com.megacrit.cardcrawl.desktop.DesktopLauncher', :claimCardReward, [reward_idx, card_idx])
+        Process.sleep(50)
     end
 
     #this test on normal client seed==1 the first 4 mobs should be idential along with all card indexes
     #5th mob on normal client should be mushrooms
-    def test_hardcoded_onlymobs() do
+    def test_hardcoded_onlymobs_nocards() do
         sts = SlayTheSpire.init()
+        test_hardcoded_onlymobs_nocards_1(sts, 1)
+    end
+    def test_hardcoded_onlymobs_nocards_1(sts, times \\ 1) do
         start_time = :os.system_time(1000)
         sts = SlayTheSpire.reset(sts, 1)
         #SlayTheSpire.observe_basic(sts)
@@ -97,6 +107,7 @@ defmodule SlayTheSpire do
         SlayTheSpire.action_playCard(sts, 0, 0)
         SlayTheSpire.action_playCard(sts, 1, 0)
         %{fight: %{won: true}} = SlayTheSpire.observe(sts)
+        Process.sleep(100)
         SlayTheSpire.action_claimReward(sts, 0)
 
         #fight 2 dinosaur
@@ -111,6 +122,7 @@ defmodule SlayTheSpire do
         SlayTheSpire.action_playCard(sts, 2, 0)
         SlayTheSpire.action_playCard(sts, 2, 0)
         %{fight: %{won: true}} = SlayTheSpire.observe(sts)
+        Process.sleep(100)
         SlayTheSpire.action_claimReward(sts, 0)
 
         #fight 3 slimex2
@@ -125,6 +137,7 @@ defmodule SlayTheSpire do
         SlayTheSpire.action_playCard(sts, 3, 1)
         SlayTheSpire.action_playCard(sts, 2, 1)
         %{fight: %{won: true}} = SlayTheSpire.observe(sts)
+        Process.sleep(100)
         SlayTheSpire.action_claimReward(sts, 0)
 
         #fight 4 snailx2
@@ -138,6 +151,7 @@ defmodule SlayTheSpire do
         SlayTheSpire.action_endTurn(sts)
         SlayTheSpire.action_playCard(sts, 1, 1)
         %{fight: %{won: true}} = SlayTheSpire.observe(sts)
+        Process.sleep(100)
         SlayTheSpire.action_claimReward(sts, 0)
 
         #fight 5 dinosaur
@@ -152,9 +166,87 @@ defmodule SlayTheSpire do
         SlayTheSpire.action_playCard(sts, 0, 0)
         SlayTheSpire.action_playCard(sts, 0, 0)
         %{fight: %{won: true}} = SlayTheSpire.observe(sts)
+        Process.sleep(100)
         SlayTheSpire.action_claimReward(sts, 0)
         SlayTheSpire.action_claimReward(sts, 0)
 
-        :os.system_time(1000) - start_time
+        #fight 6 burb
+        SlayTheSpire.action_setCurrMapNode(sts, 5, 5)
+        SlayTheSpire.action_playCard(sts, 1, 0)
+        SlayTheSpire.action_playCard(sts, 2, 0)
+        SlayTheSpire.action_endTurn(sts)
+        SlayTheSpire.action_playCard(sts, 4, 0)
+        SlayTheSpire.action_playCard(sts, 2, 0)
+        SlayTheSpire.action_playCard(sts, 0, 0)
+        SlayTheSpire.action_endTurn(sts)
+        SlayTheSpire.action_playCard(sts, 0, 0)
+        SlayTheSpire.action_playCard(sts, 0, 0)
+        %{fight: %{won: true}} = SlayTheSpire.observe(sts)
+        Process.sleep(100)
+        SlayTheSpire.action_claimReward(sts, 0)
+        SlayTheSpire.action_claimReward(sts, 0)
+
+        #fight 7 slime2x
+        SlayTheSpire.action_setCurrMapNode(sts, 5, 6)
+        SlayTheSpire.action_playCard(sts, 0, 0)
+        SlayTheSpire.action_playCard(sts, 0, 0)
+        SlayTheSpire.action_playCard(sts, 1)
+        SlayTheSpire.action_endTurn(sts)
+        SlayTheSpire.action_playCard(sts, 2, 1)
+        SlayTheSpire.action_playCard(sts, 2, 1)
+        SlayTheSpire.action_playCard(sts, 2, 1)
+        SlayTheSpire.action_endTurn(sts)
+        SlayTheSpire.action_playCard(sts, 1, 1)
+        SlayTheSpire.action_playCard(sts, 1, 1)
+        %{fight: %{won: true}} = SlayTheSpire.observe(sts)
+        Process.sleep(100)
+        SlayTheSpire.action_claimReward(sts, 0)
+        SlayTheSpire.action_claimReward(sts, 0)
+
+        #fight 8 dinosuar
+        SlayTheSpire.action_setCurrMapNode(sts, 4, 7)
+        SlayTheSpire.action_playCard(sts, 3, 0)
+        SlayTheSpire.action_playCard(sts, 1, 0)
+        SlayTheSpire.action_playCard(sts, 0)
+        SlayTheSpire.action_endTurn(sts)
+        SlayTheSpire.action_playCard(sts, 4, 0)
+        SlayTheSpire.action_playCard(sts, 0, 0)
+        SlayTheSpire.action_endTurn(sts)
+        SlayTheSpire.action_playCard(sts, 4, 0)
+        SlayTheSpire.action_playCard(sts, 2, 0)
+        SlayTheSpire.action_playCard(sts, 0, 0)
+        %{fight: %{won: true}} = SlayTheSpire.observe(sts)
+        Process.sleep(100)
+        SlayTheSpire.action_claimReward(sts, 0)
+
+        #fight 9 treasureroom
+        SlayTheSpire.action_setCurrMapNode(sts, 3, 8)
+        %{currMapNodeRoomType: "TreasureRoom"} = SlayTheSpire.observe(sts)
+        SlayTheSpire.action_claimReward(sts, 0)
+
+        #fight 10 burb
+        SlayTheSpire.action_setCurrMapNode(sts, 3, 9)
+        SlayTheSpire.action_playCard(sts, 1, 0)
+        SlayTheSpire.action_playCard(sts, 0, 0)
+        SlayTheSpire.action_endTurn(sts)
+        SlayTheSpire.action_playCard(sts, 2, 0)
+        SlayTheSpire.action_playCard(sts, 2, 0)
+        SlayTheSpire.action_playCard(sts, 0)
+        SlayTheSpire.action_endTurn(sts)
+        SlayTheSpire.action_playCard(sts, 2, 0)
+        SlayTheSpire.action_playCard(sts, 2, 0)
+        SlayTheSpire.action_playCard(sts, 2, 0)
+        %{fight: %{won: true}} = SlayTheSpire.observe(sts)
+        Process.sleep(100)
+        SlayTheSpire.action_claimReward(sts, 0)
+
+        %{player: %{gold: 233, potions: potions}} = SlayTheSpire.observe(sts)
+        true = length(potions) == 3
+
+        if times > 0 do
+            test_hardcoded_onlymobs_nocards_1(sts, times-1)
+        else
+            :os.system_time(1000) - start_time
+        end
     end
 end
