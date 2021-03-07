@@ -37,10 +37,15 @@ defmodule Lab.Game.FrozenLake do
          nrow: length(map),
          ncol: String.length(List.first(map)),
        },
-       current_state: 0,
+       state: 0,
+       observable_state: 0,
        action_space: %Lab.Struct.Discrete{n: 4},
        observation_space: %Lab.Struct.Discrete{n: 16}
      }
+  end
+
+  def actions(ex_gym) do
+    0..(ex_gym.action_space.n-1)
   end
 
   def render(ex_gym) do
@@ -49,14 +54,14 @@ defmodule Lab.Game.FrozenLake do
   end
 
   def reset(ex_gym) do
-    %{ex_gym | current_state: 0, env: %{ex_gym.env | row: 0, col: 0}}
+    %{ex_gym | state: 0, observable_state: 0, env: %{ex_gym.env | row: 0, col: 0}}
   end
 
   def act(ex_gym, action) do
     env = rwo_col_step(ex_gym.env, action)
     current_tile = get_position(env.map, env.row, env.col)
 
-    ex_gym = %{ex_gym | current_state: env_state_transformer(env), env: env}
+    ex_gym = %{ex_gym | state: env_state_transformer(env), observable_state: env_state_transformer(env),  env: env}
     experience = %{
       reward: if(current_tile == "G", do: 1.0, else: 0.0),
       done: (current_tile in ["H", "G"]),
@@ -66,7 +71,7 @@ defmodule Lab.Game.FrozenLake do
   end
 
   def observe(ex_gym) do
-      ex_gym.current_state
+      ex_gym.state
   end
 
   def step(ex_gym, action) do

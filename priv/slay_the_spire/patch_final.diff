@@ -36,23 +36,30 @@ index 0000000..4c34c9f
 Binary files /dev/null and b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/actions/GameActionManager$1.class differ
 diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/actions/GameActionManager$Phase.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/actions/GameActionManager$Phase.class
 new file mode 100644
-index 0000000..a02b487
+index 0000000..b0d96c3
 Binary files /dev/null and b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/actions/GameActionManager$Phase.class differ
 diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/actions/GameActionManager.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/actions/GameActionManager.class
 new file mode 100644
-index 0000000..9577b29
+index 0000000..3dfedea
 Binary files /dev/null and b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/actions/GameActionManager.class differ
 diff --git a/6661e72999ce8b0e2b6f62809e8b2737-original/com/megacrit/cardcrawl/actions/GameActionManager.java b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/actions/GameActionManager.java
-index 41e7007..f54f27b 100644
+index 41e7007..3bfa123 100644
 --- a/6661e72999ce8b0e2b6f62809e8b2737-original/com/megacrit/cardcrawl/actions/GameActionManager.java
 +++ b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/actions/GameActionManager.java
-@@ -138,6 +138,53 @@ public class GameActionManager {
+@@ -138,6 +138,60 @@ public class GameActionManager {
      }
  
      public void update() {
 +        if (this.phase == Phase.WAITING_ON_USER) {
 +            this.getNextAction();
 +        }
++
++        if (this.currentAction != null) {
++            String className = this.currentAction.getClass().getSimpleName();
++            if (className == null) {className = "unknonw";}
++            logger.info("action ".concat(className));
++        }
++
 +        if (this.phase == Phase.EXECUTING_ACTIONS) {
 +            if (this.currentAction != null && !this.currentAction.isDone) {
 +                this.currentAction.update();
@@ -100,25 +107,25 @@ index 41e7007..f54f27b 100644
          switch (this.phase) {
              case WAITING_ON_USER: {
                  this.getNextAction();
-@@ -146,8 +193,16 @@ public class GameActionManager {
+@@ -146,8 +200,16 @@ public class GameActionManager {
              case EXECUTING_ACTIONS: {
                  if (this.currentAction != null && !this.currentAction.isDone) {
                      this.currentAction.update();
 -                    break;
 +                    if (!this.currentAction.isDone)
 +                        break;
-                 }
++                }
 +
 +                if (this.currentAction != null) {
 +                    String className = this.currentAction.getClass().getSimpleName();
 +                    if (className == null) {className = "unknonw";}
 +                    logger.info("action ".concat(className));
-+                }
+                 }
 +
                  this.previousAction = this.currentAction;
                  this.currentAction = null;
                  this.getNextAction();
-@@ -162,7 +217,7 @@ public class GameActionManager {
+@@ -162,7 +224,7 @@ public class GameActionManager {
              default: {
                  logger.info("This should never be called");
              }
@@ -127,7 +134,7 @@ index 41e7007..f54f27b 100644
      }
  
      public void endTurn() {
-@@ -295,6 +350,7 @@ public class GameActionManager {
+@@ -295,6 +357,7 @@ public class GameActionManager {
                  AbstractDungeon.getCurrRoom().monsters.queueMonsters();
              }
          } else if (!this.monsterQueue.isEmpty()) {
@@ -135,7 +142,7 @@ index 41e7007..f54f27b 100644
              AbstractMonster m = this.monsterQueue.get((int)0).monster;
              if (!m.isDeadOrEscaped() || m.halfDead) {
                  if (m.intent != AbstractMonster.Intent.NONE) {
-@@ -313,9 +369,10 @@ public class GameActionManager {
+@@ -313,9 +376,10 @@ public class GameActionManager {
              }
              this.monsterQueue.remove(0);
              if (this.monsterQueue.isEmpty()) {
@@ -147,7 +154,7 @@ index 41e7007..f54f27b 100644
              if (!AbstractDungeon.getCurrRoom().skipMonsterTurn) {
                  AbstractDungeon.getCurrRoom().monsters.applyEndOfTurnPowers();
              }
-@@ -381,7 +438,7 @@ public class GameActionManager {
+@@ -381,7 +445,7 @@ public class GameActionManager {
      }
  
      public void cleanCardQueue() {
@@ -2182,28 +2189,38 @@ index df0123d..176ccf2 100644
          if (playSfx) {
 diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/core/CardCrawlGame$1.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/core/CardCrawlGame$1.class
 new file mode 100644
-index 0000000..7a86bcb
+index 0000000..5abd88a
 Binary files /dev/null and b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/core/CardCrawlGame$1.class differ
 diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/core/CardCrawlGame$GameMode.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/core/CardCrawlGame$GameMode.class
 new file mode 100644
-index 0000000..bfbf867
+index 0000000..f766f2a
 Binary files /dev/null and b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/core/CardCrawlGame$GameMode.class differ
 diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/core/CardCrawlGame.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/core/CardCrawlGame.class
 new file mode 100644
-index 0000000..2542a43
+index 0000000..8be2b5e
 Binary files /dev/null and b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/core/CardCrawlGame.class differ
 diff --git a/6661e72999ce8b0e2b6f62809e8b2737-original/com/megacrit/cardcrawl/core/CardCrawlGame.java b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/core/CardCrawlGame.java
-index 3ac8b89..2ae7bfb 100644
+index 3ac8b89..55e1294 100644
 --- a/6661e72999ce8b0e2b6f62809e8b2737-original/com/megacrit/cardcrawl/core/CardCrawlGame.java
 +++ b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/core/CardCrawlGame.java
-@@ -342,14 +342,14 @@ implements ApplicationListener {
+@@ -108,6 +108,7 @@ import java.util.Map;
+ import java.util.Scanner;
+ import org.apache.logging.log4j.LogManager;
+ import org.apache.logging.log4j.Logger;
++import com.megacrit.cardcrawl.desktop.ApiObj;
+ 
+ public class CardCrawlGame
+ implements ApplicationListener {
+@@ -342,14 +343,14 @@ implements ApplicationListener {
      public void render() {
          try {
              TimeHelper.update();
 -            if (Gdx.graphics.getRawDeltaTime() > 0.1f) {
-+            if (Gdx.graphics.getRawDeltaTime() > 1.0f) {
-                 return;
-             }
+-                return;
+-            }
++            //if (Gdx.graphics.getRawDeltaTime() > 1.0f) {
++            //    return;
++            //}
              CInputHelper.initializeIfAble();
              this.update();
              this.sb.setProjectionMatrix(this.camera.combined);
@@ -2213,7 +2230,19 @@ index 3ac8b89..2ae7bfb 100644
              this.sb.begin();
              this.sb.setColor(Color.WHITE);
              switch (mode) {
-@@ -481,7 +481,7 @@ implements ApplicationListener {
+@@ -405,6 +406,11 @@ implements ApplicationListener {
+                 this.sb.draw(ImageMaster.WHITE_SQUARE_IMG, (float)Settings.WIDTH, 0.0f, (float)Settings.VERT_LETTERBOX_AMT, (float)Settings.HEIGHT);
+             }
+             this.sb.end();
++
++            if (ApiObj.function_to_call != null) {
++                logger.info("calling API function on mainthread");
++                ApiObj.call_it();
++            }
+         }
+         catch (Exception e) {
+             logger.info("Exception occurred in CardCrawlGame render method!");
+@@ -481,7 +487,7 @@ implements ApplicationListener {
                      logger.info("[GC] AFTER: " + String.valueOf(SystemStats.getUsedMemory()));
                      logger.info("New Transition Screen, Tip Tracker Refresh: " + (System.currentTimeMillis() - startTime) + "ms");
                      startTime = System.currentTimeMillis();
@@ -2222,7 +2251,7 @@ index 3ac8b89..2ae7bfb 100644
                      if (queueCredits) {
                          queueCredits = false;
                          CardCrawlGame.mainMenuScreen.creditsScreen.open(playCreditsBgm);
-@@ -508,14 +508,14 @@ implements ApplicationListener {
+@@ -508,14 +514,14 @@ implements ApplicationListener {
  
      public static void startOver() {
          startOver = true;
@@ -2239,7 +2268,7 @@ index 3ac8b89..2ae7bfb 100644
      }
  
      private static void doorUnlockScreenCheck() {
-@@ -945,48 +945,47 @@ implements ApplicationListener {
+@@ -945,48 +951,47 @@ implements ApplicationListener {
              }
              ++index;
          }
@@ -2305,15 +2334,96 @@ index 3ac8b89..2ae7bfb 100644
                  ((BottledTornado)AbstractDungeon.player.getRelic("Bottled Tornado")).setDescriptionAfterLoading();
              }
          }
+diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/ApiObj.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/ApiObj.class
+new file mode 100644
+index 0000000..2551db3
+Binary files /dev/null and b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/ApiObj.class differ
+diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/ApiObj.java b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/ApiObj.java
+new file mode 100644
+index 0000000..a50c43b
+--- /dev/null
++++ b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/ApiObj.java
+@@ -0,0 +1,67 @@
++package com.megacrit.cardcrawl.desktop;
++import com.megacrit.cardcrawl.desktop.DesktopLauncher;
++
++public class ApiObj {
++    public static Object waiter = new Object();
++    public static String result = "";
++    public static String function_to_call = null;
++    public static int function_arg1 = 0;
++    public static int function_arg2 = 0;
++    public static boolean wait_idle = false;
++    public static boolean wait_idle_skip_reward = false;
++    public static boolean wait_idle_map_move = false;
++    public static boolean wait_idle_end_turn = false;
++
++    public static void wait_it(String func2c) {
++        synchronized (waiter) {
++            try {
++                function_to_call = func2c;
++                waiter.wait();
++            } catch (InterruptedException e)  {
++                Thread.currentThread().interrupt();
++            }
++        }
++    }
++
++    public static void call_it() {
++        synchronized (waiter) {
++            switch (function_to_call) {
++                case "state":
++                    result = DesktopLauncher.state();
++                    break;
++                case "skipReward":
++                    DesktopLauncher.skipReward(function_arg1);
++                    break;
++                case "claimReward":
++                    DesktopLauncher.claimReward(function_arg1);
++                    break;
++                case "claimCardReward":
++                    DesktopLauncher.claimCardReward(function_arg1, function_arg2);
++                    break;
++                case "setCurrMapNode2":
++                    DesktopLauncher.setCurrMapNode2(function_arg1, function_arg2);
++                    break;
++                case "playCard":
++                    DesktopLauncher.playCard(function_arg1);
++                    break;
++                case "playCardTarget":
++                    DesktopLauncher.playCard(function_arg1, function_arg2);
++                    break;
++                case "endTurn":
++                    DesktopLauncher.endTurn();
++                    break;
++                case "startDungeon":
++                    DesktopLauncher.startDungeon(Long.valueOf(function_arg1));
++                    break;
++                default:
++                    break;
++            }
++            function_to_call = null;
++            wait_idle = false;
++            wait_idle_skip_reward = false;
++            wait_idle_map_move = false;
++            wait_idle_end_turn = false;
++            waiter.notify();
++        }
++    }
++}
+diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/DesktopLauncher$ApiObj.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/DesktopLauncher$ApiObj.class
+new file mode 100644
+index 0000000..021c9b3
+Binary files /dev/null and b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/DesktopLauncher$ApiObj.class differ
 diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/DesktopLauncher.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/DesktopLauncher.class
 new file mode 100644
-index 0000000..6471faf
+index 0000000..1d450b2
 Binary files /dev/null and b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/DesktopLauncher.class differ
 diff --git a/6661e72999ce8b0e2b6f62809e8b2737-original/com/megacrit/cardcrawl/desktop/DesktopLauncher.java b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/DesktopLauncher.java
-index 5069aff..0a3a94a 100644
+index 5069aff..b31bb59 100644
 --- a/6661e72999ce8b0e2b6f62809e8b2737-original/com/megacrit/cardcrawl/desktop/DesktopLauncher.java
 +++ b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/DesktopLauncher.java
-@@ -19,8 +19,754 @@ import java.util.Locale;
+@@ -19,8 +19,875 @@ import java.util.Locale;
  import org.apache.logging.log4j.LogManager;
  import org.apache.logging.log4j.Logger;
  
@@ -2372,6 +2482,8 @@ index 5069aff..0a3a94a 100644
 +    public static boolean monstersOnly = true;
 +    public static boolean magic1 = false;
 +
++
++
 +    public static String state2() {
 +        String charClass = "";
 +        if (CardCrawlGame.chosenCharacter != null) { charClass = CardCrawlGame.chosenCharacter.name(); }
@@ -2419,6 +2531,7 @@ index 5069aff..0a3a94a 100644
 +
 +    public static String buildCardList(ArrayList<AbstractCard> cards) {
 +        String cardText = "[";
++        int idx = 0;
 +        for (AbstractCard card : cards)
 +        {
 +            Integer costNow = card.costForTurn;
@@ -2431,8 +2544,8 @@ index 5069aff..0a3a94a 100644
 +
 +            cardText = cardText.concat("{");
 +            cardText = cardText.concat(MessageFormat.format(
-+                "\"id\": \"{0}\",\"type\": \"{1}\", \"target\": \"{2}\",\"cost\": {3}, \"costNow\": {4}, \"hasEnoughEnergy\": {5}, \"upgraded\": {6}, \"timesUpgraded\": {7}, \"canUpgrade\": {8}, \"rarity\": \"{9}\"",
-+                card.cardID, card.type.name(), card.target.name(), card.cost, costNow, card.hasEnoughEnergy(), card.upgraded, card.timesUpgraded, card.canUpgrade(), card.rarity.name()));
++                "\"id\": \"{0}\",\"type\": \"{1}\", \"target\": \"{2}\",\"cost\": {3}, \"costNow\": {4}, \"hasEnoughEnergy\": {5}, \"upgraded\": {6}, \"timesUpgraded\": {7}, \"canUpgrade\": {8}, \"rarity\": \"{9}\", \"index\": {10}",
++                card.cardID, card.type.name(), card.target.name(), card.cost, costNow, card.hasEnoughEnergy(), card.upgraded, card.timesUpgraded, card.canUpgrade(), card.rarity.name(), idx));
 +
 +            //cardText = cardText.concat(MessageFormat.format("'{'\"inBottleFlame\": {0},\"inBottleLightning\": {1},\"inBottleTornado\": {2}, \"purgeOnUse\": {3},\"exhaustOnUseOnce\": {4}, \"exhaustOnFire\": {5}, \"freeToPlayOnce\": {6}, \"isInAutoplay\": {7}'}',",
 +            //    card.inBottleFlame, card.inBottleLightning, card.inBottleTornado, card.purgeOnUse, card.exhaustOnUseOnce, card.exhaustOnFire, card.freeToPlayOnce, card.isInAutoplay));
@@ -2451,9 +2564,15 @@ index 5069aff..0a3a94a 100644
 +            //    "\"damage\": {0},\"block\": {1},\"magicNumber\": {2},\"heal\": {3},\"draw\": {4},\"discard\": {5}",
 +            //    card.damage, card.block, card.magicNumber, card.heal, card.draw, card.discard));
 +            cardText = cardText.concat("},");
++            idx++;
 +        }
 +        cardText = replaceLast(cardText, ",", "");
 +        return cardText.concat("]");
++    }
++
++    public static String call_state() {
++        ApiObj.wait_it("state");
++        return ApiObj.result;
 +    }
 +
 +    public static String state() {
@@ -2528,6 +2647,7 @@ index 5069aff..0a3a94a 100644
 +                ArrayList<AbstractMonster> monsters = CardCrawlGame.dungeon.currMapNode.room.monsters.monsters;
 +
 +                monstersStr = "";
++                int mob_index = 0;
 +                for (AbstractMonster monster : monsters)
 +                {
 +                    if (monster.isDeadOrEscaped() == false)
@@ -2543,10 +2663,11 @@ index 5069aff..0a3a94a 100644
 +                    mobPowerStr = buildJsonList(mobPowerStr);
 +
 +                    monstersStr = monstersStr.concat(MessageFormat.format(
-+                        "'{'\"id\": \"{0}\",\"type\": \"{1}\",\"intent\": \"{2}\",\"intentDmg\": {3},\"intentBaseDmg\": {4},\"intentMultiAmt\": {5},\"hp\": {6}, \"hpMax\": {7}, \"block\": {8}, \"powers\": {9}, \"isDeadOrEscaped\": {10}'}',",
++                        "'{'\"id\": \"{0}\",\"type\": \"{1}\",\"intent\": \"{2}\",\"intentDmg\": {3},\"intentBaseDmg\": {4},\"intentMultiAmt\": {5},\"hp\": {6}, \"hpMax\": {7}, \"block\": {8}, \"powers\": {9}, \"isDeadOrEscaped\": {10}, \"index\": {11}'}',",
 +                        monster.id, monster.type.name(), monster.intent.name(),
 +                        monster.intentDmg, monster.intentBaseDmg, monster.intentMultiAmt,
-+                        monster.currentHealth, monster.maxHealth, monster.currentBlock, mobPowerStr, monster.isDeadOrEscaped()));
++                        monster.currentHealth, monster.maxHealth, monster.currentBlock, mobPowerStr, monster.isDeadOrEscaped(), mob_index));
++                    mob_index++;
 +                }
 +                monstersStr = buildJsonList(monstersStr);
 +            }
@@ -2682,6 +2803,7 @@ index 5069aff..0a3a94a 100644
 +                case "COMBAT_REWARD":
 +                    String rewardStr = "";
 +                    ArrayList<RewardItem> rewards = AbstractDungeon.combatRewardScreen.rewards;
++                    int rindex = 0;
 +                    for (RewardItem reward : rewards)
 +                    {
 +                        String reward_type = reward.type.name();
@@ -2697,28 +2819,29 @@ index 5069aff..0a3a94a 100644
 +                        switch (reward_type) {
 +                            case "CARD":
 +                                String rcards = buildCardList(reward.cards);
-+                                rewardStr = rewardStr.concat(MessageFormat.format("'{'\"type\": \"{0}\",\"cards\": {1}'}',", reward_type, rcards));
++                                rewardStr = rewardStr.concat(MessageFormat.format("'{'\"type\": \"{0}\",\"cards\": {1},\"index\": {2}'}',", reward_type, rcards, rindex));
 +                                break;
 +                            case "GOLD":
 +                            case "STOLEN_GOLD":
-+                                rewardStr = rewardStr.concat(MessageFormat.format("'{'\"type\": \"{0}\",\"amount\": {1}'}',",
-+                                    reward_type, reward.goldAmt + reward.bonusGold));
++                                rewardStr = rewardStr.concat(MessageFormat.format("'{'\"type\": \"{0}\",\"amount\": {1},\"index\": {2}'}',",
++                                    reward_type, reward.goldAmt + reward.bonusGold, rindex));
 +                                break;
 +                            case "RELIC":
-+                                rewardStr = rewardStr.concat(MessageFormat.format("'{'\"type\": \"{0}\",\"id\": \"{1}\"'}',",
-+                                    reward_type, reward.relic.relicId));
++                                rewardStr = rewardStr.concat(MessageFormat.format("'{'\"type\": \"{0}\",\"id\": \"{1}\",\"index\": {2}'}',",
++                                    reward_type, reward.relic.relicId, rindex));
 +                                break;
 +                            case "POTION":
-+                                rewardStr = rewardStr.concat(MessageFormat.format("'{'\"type\": \"{0}\",\"id\": \"{1}\"'}',",
-+                                    reward_type, reward.potion.ID));
++                                rewardStr = rewardStr.concat(MessageFormat.format("'{'\"type\": \"{0}\",\"id\": \"{1}\",\"index\": {2}'}',",
++                                    reward_type, reward.potion.ID, rindex));
 +                                break;
 +                            case "EMERALD_KEY":
 +                            case "SAPPHIRE_KEY":
-+                                rewardStr = rewardStr.concat(MessageFormat.format("'{'\"type\": \"{0}\"'}',", reward_type));
++                                rewardStr = rewardStr.concat(MessageFormat.format("'{'\"type\": \"{0}\",\"index\": {1}'}',", reward_type, rindex));
 +                                break;
 +                            default:
 +                                break;
 +                        }
++                        rindex++;
 +                    }
 +                    rewardStr = buildJsonList(rewardStr);
 +                    screen_reward = MessageFormat.format("'{'\"screenType\": \"{0}\", \"rewards\": {1}'}'", screenType, rewardStr);
@@ -2771,12 +2894,43 @@ index 5069aff..0a3a94a 100644
 +        } catch (Exception e) {
 +        }
 +
-+        String json_game = MessageFormat.format("'{'\"inRun\": {0}, \"screenType\": \"{1}\", \"screen\": {2}, \"map\": {3}, \"roomPhase\": \"{4}\"'}'",
-+            CardCrawlGame.isInARun(), screenType, screen_reward, json_map, AbstractDungeon.getCurrRoom().phase.name());
++        String json_game = MessageFormat.format("'{'\"inRun\": {0}, \"screenType\": \"{1}\", \"screen\": {2}, \"map\": {3}, \"roomPhase\": \"{4}\", \"floor\": {5}, \"act\": {6}'}'",
++            CardCrawlGame.isInARun(), screenType, screen_reward, json_map, AbstractDungeon.getCurrRoom().phase.name(), AbstractDungeon.floorNum, AbstractDungeon.actNum);
 +
 +        String json = MessageFormat.format("'{'\"player\": {0}, \"fight\": {1}, \"game\": {2}, \"screenType\": \"{3}\", \"isScreenUp\": \"{4}\", \"currMapNodeRoomType\": \"{5}\", \"isPopupOpen\": \"{6}\"'}'",
 +            json_player, json_fight, json_game, screenType, isScreenUp, currMapNodeRoomType, isPopupOpen);
 +        return json;
++    }
++
++    public static void call_skipReward(int rewardIndex) {
++        ApiObj.function_arg1 = rewardIndex;
++        ApiObj.wait_it("skipReward");
++    }
++
++    public static void skipReward(int rewardIndex) {
++        EnergyPanel.totalCount = 0;
++
++        String screenType = "";
++        if (CardCrawlGame.dungeon.screen != null) { screenType = CardCrawlGame.dungeon.screen.name(); }
++
++        int oldSize = AbstractDungeon.combatRewardScreen.rewards.size();
++
++        switch (screenType) {
++            case "COMBAT_REWARD":
++                AbstractDungeon.combatRewardScreen.rewards.remove(rewardIndex);
++                break;
++            default:
++                oldSize = -1;
++                break;
++        }
++        while(oldSize == AbstractDungeon.combatRewardScreen.rewards.size()) {
++            try{ Thread.sleep(3);} catch(InterruptedException e){}
++        }
++    }
++
++    public static void call_claimReward(int rewardIndex) {
++        ApiObj.function_arg1 = rewardIndex;
++        ApiObj.wait_it("claimReward");
 +    }
 +
 +    public static void claimReward(int rewardIndex) {
@@ -2799,6 +2953,12 @@ index 5069aff..0a3a94a 100644
 +        while(oldSize == AbstractDungeon.combatRewardScreen.rewards.size()) {
 +            try{ Thread.sleep(3);} catch(InterruptedException e){}
 +        }
++    }
++
++    public static void call_claimCardReward(int rewardIndex, int cardIndex) {
++        ApiObj.function_arg1 = rewardIndex;
++        ApiObj.function_arg2 = cardIndex;
++        ApiObj.wait_it("claimCardReward");
 +    }
 +
 +    public static void claimCardReward(int rewardIndex, int cardIndex) {
@@ -2859,6 +3019,28 @@ index 5069aff..0a3a94a 100644
 +    //For dying mobs
 +    public static void waitIdleEffects() {
 +        while (true) {
++            /*if (AbstractDungeon.actionManager.currentAction != null) {
++                String className = AbstractDungeon.actionManager.currentAction.getClass().getSimpleName();
++                if (className == null) {className = "unknonw";}
++                logger.info("action ".concat(className));
++            }*/
++
++            boolean won = true;
++            if (AbstractDungeon.currMapNode != null && AbstractDungeon.currMapNode.room != null
++                && AbstractDungeon.currMapNode.room.monsters != null
++                && AbstractDungeon.currMapNode.room.monsters.monsters.size() > 0
++                && AbstractDungeon.getCurrRoom().phase.name() == "COMBAT")
++            {
++                ArrayList<AbstractMonster> monsters = CardCrawlGame.dungeon.currMapNode.room.monsters.monsters;
++                for (AbstractMonster monster : monsters)
++                {
++                    if (monster.isDeadOrEscaped() == false)
++                        won = false;
++                }
++            } else {
++                won = false;
++            }
++
 +            if (AbstractDungeon.topLevelEffects.isEmpty()
 +                && AbstractDungeon.topLevelEffectsQueue.isEmpty()
 +                && AbstractDungeon.effectList.isEmpty()
@@ -2869,8 +3051,16 @@ index 5069aff..0a3a94a 100644
 +                && AbstractDungeon.actionManager.monsterQueue.isEmpty()
 +                && AbstractDungeon.actionManager.currentAction == null
 +            ){
++                if (won == true && EnergyPanel.totalCount != 0) {
++                    try{ Thread.sleep(3);} catch(InterruptedException e){}
++                    continue;
++                }
 +                break;
 +            }
++
++            if (AbstractDungeon.actionManager.actions.isEmpty() == false && CardCrawlGame.dungeon.player.isDead)
++                break;
++
 +            logger.info(MessageFormat.format("waiting effect actions.. {0} {1} {2} | {3} {4} {5} | {6} {7} {8}",
 +                AbstractDungeon.topLevelEffects.isEmpty(), AbstractDungeon.topLevelEffectsQueue.isEmpty(), AbstractDungeon.effectList.isEmpty(),
 +                AbstractDungeon.effectsQueue.isEmpty(), AbstractDungeon.actionManager.actions.isEmpty(), AbstractDungeon.actionManager.preTurnActions.isEmpty(),
@@ -2906,6 +3096,12 @@ index 5069aff..0a3a94a 100644
 +            logger.info("waiting screen change..");
 +            try{ Thread.sleep(3);} catch(InterruptedException e){}
 +        }
++    }
++
++    public static void call_setCurrMapNode2(int x, int y) {
++        ApiObj.function_arg1 = x;
++        ApiObj.function_arg2 = y;
++        ApiObj.wait_it("setCurrMapNode2");
 +    }
 +
 +    public static void setCurrMapNode2(int x, int y) {
@@ -2967,6 +3163,11 @@ index 5069aff..0a3a94a 100644
 +        waitIdleEffects();
 +    }
 +
++    public static void call_playCard(int cardIndex) {
++        ApiObj.function_arg1 = cardIndex;
++        ApiObj.wait_it("playCard");
++    }
++
 +    public static void playCard(int cardIndex) {
 +        AbstractCard card = CardCrawlGame.dungeon.player.hand.group.get(cardIndex);
 +
@@ -2975,6 +3176,12 @@ index 5069aff..0a3a94a 100644
 +
 +        //waitIdle();
 +        waitIdleEffects();
++    }
++
++    public static void call_playCard(int cardIndex, int monsterIndex) {
++        ApiObj.function_arg1 = cardIndex;
++        ApiObj.function_arg2 = monsterIndex;
++        ApiObj.wait_it("playCardTarget");
 +    }
 +
 +    public static void playCard(int cardIndex, int monsterIndex) {
@@ -2987,6 +3194,10 @@ index 5069aff..0a3a94a 100644
 +
 +        //waitIdle();
 +        waitIdleEffects();
++    }
++
++    public static void call_endTurn() {
++        ApiObj.wait_it("endTurn");
 +    }
 +
 +    public static void endTurn() {
@@ -3018,15 +3229,35 @@ index 5069aff..0a3a94a 100644
 +        AbstractDungeon.miscRng = new Random(seed);
 +    }
 +
++    public static void call_startDungeon(int seed) {
++        ApiObj.function_to_call = ;
++        ApiObj.function_arg1 = seed;
++        ApiObj.wait_it("startDungeon");
++    }
++
 +    public static void startDungeon(Long seed) {
-+        if (CardCrawlGame.chosenCharacter != null) {
-+            AbstractDungeon.firstRoomChosen = false;
-+            CardCrawlGame.startOver();
-+            while (true) {
-+                if (CardCrawlGame.mode == CardCrawlGame.GameMode.CHAR_SELECT)
-+                    break;
-+               try{ Thread.sleep(10);} catch(InterruptedException e){}
++        startDungeon_1(seed, true, 0);
++    }
++
++    public static void startDungeon_1(Long seed, boolean sleep, int step) {
++        if (step == 0) {
++            if (CardCrawlGame.chosenCharacter != null) {
++                AbstractDungeon.firstRoomChosen = false;
++                CardCrawlGame.startOver();
++                if (sleep == true) {
++                    while (true) {
++                        if (CardCrawlGame.mode == CardCrawlGame.GameMode.CHAR_SELECT)
++                            break;
++                       try{ Thread.sleep(10);} catch(InterruptedException e){}
++                    }
++                } else {
++                    return;
++                }
 +            }
++        }
++        if (step == 1) {
++            if (CardCrawlGame.mode != CardCrawlGame.GameMode.CHAR_SELECT)
++                return;
 +        }
 +
 +        if (monstersOnly)
@@ -3069,7 +3300,7 @@ index 5069aff..0a3a94a 100644
  
      public static void main(String[] arg) {
          logger.info("time: " + System.currentTimeMillis());
-@@ -38,11 +784,14 @@ public class DesktopLauncher {
+@@ -38,11 +905,14 @@ public class DesktopLauncher {
          STSSentry.setup();
          try {
              LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
@@ -3235,6 +3466,62 @@ index 1d6299d..fa0e1b7 100644
 +        //CardLibrary.add(new Warcry());
          CardLibrary.add(new Whirlwind());
          CardLibrary.add(new WildStrike());
+     }
+diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/PotionHelper$1.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/PotionHelper$1.class
+new file mode 100644
+index 0000000..7e45195
+Binary files /dev/null and b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/PotionHelper$1.class differ
+diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/PotionHelper.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/PotionHelper.class
+new file mode 100644
+index 0000000..ca7d94a
+Binary files /dev/null and b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/PotionHelper.class differ
+diff --git a/6661e72999ce8b0e2b6f62809e8b2737-original/com/megacrit/cardcrawl/helpers/PotionHelper.java b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/PotionHelper.java
+index 41977e2..f3bb6a8 100644
+--- a/6661e72999ce8b0e2b6f62809e8b2737-original/com/megacrit/cardcrawl/helpers/PotionHelper.java
++++ b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/PotionHelper.java
+@@ -82,7 +82,7 @@ public class PotionHelper {
+             switch (c) {
+                 case IRONCLAD: {
+                     retVal.add("BloodPotion");
+-                    retVal.add("ElixirPotion");
++                    //retVal.add("ElixirPotion");
+                     retVal.add("HeartOfIron");
+                     break;
+                 }
+@@ -128,26 +128,26 @@ public class PotionHelper {
+         retVal.add("Swift Potion");
+         retVal.add("Weak Potion");
+         retVal.add("FearPotion");
+-        retVal.add("AttackPotion");
+-        retVal.add("SkillPotion");
+-        retVal.add("PowerPotion");
+-        retVal.add("ColorlessPotion");
++        //retVal.add("AttackPotion");
++        //retVal.add("SkillPotion");
++        //retVal.add("PowerPotion");
++        //retVal.add("ColorlessPotion");
+         retVal.add("SteroidPotion");
+         retVal.add("SpeedPotion");
+         retVal.add("BlessingOfTheForge");
+         retVal.add("Regen Potion");
+         retVal.add("Ancient Potion");
+         retVal.add("LiquidBronze");
+-        retVal.add("GamblersBrew");
++        //retVal.add("GamblersBrew");
+         retVal.add("EssenceOfSteel");
+         retVal.add("DuplicationPotion");
+         retVal.add("DistilledChaos");
+-        retVal.add("LiquidMemories");
++        //retVal.add("LiquidMemories");
+         retVal.add("CultistPotion");
+         retVal.add("Fruit Juice");
+-        retVal.add("SneckoOil");
++        //retVal.add("SneckoOil");
+         retVal.add("FairyPotion");
+-        retVal.add("SmokeBomb");
++        //retVal.add("SmokeBomb");
+         retVal.add("EntropicBrew");
+         return retVal;
      }
 diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/RelicLibrary$1.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/RelicLibrary$1.class
 new file mode 100644
@@ -3990,6 +4277,31 @@ index 262cff0..2118232 100644
 +        //AbstractDungeon.effectsQueue.add(new RefreshEnergyEffect());
          fontScale = 2.0f;
          energyVfxTimer = 2.0f;
+     }
+diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/ui/panels/TopPanel$1.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/ui/panels/TopPanel$1.class
+new file mode 100644
+index 0000000..7059edd
+Binary files /dev/null and b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/ui/panels/TopPanel$1.class differ
+diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/ui/panels/TopPanel$TopSection.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/ui/panels/TopPanel$TopSection.class
+new file mode 100644
+index 0000000..b1e3e96
+Binary files /dev/null and b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/ui/panels/TopPanel$TopSection.class differ
+diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/ui/panels/TopPanel.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/ui/panels/TopPanel.class
+new file mode 100644
+index 0000000..d32f841
+Binary files /dev/null and b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/ui/panels/TopPanel.class differ
+diff --git a/6661e72999ce8b0e2b6f62809e8b2737-original/com/megacrit/cardcrawl/ui/panels/TopPanel.java b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/ui/panels/TopPanel.java
+index 8a38c21..f6f534f 100644
+--- a/6661e72999ce8b0e2b6f62809e8b2737-original/com/megacrit/cardcrawl/ui/panels/TopPanel.java
++++ b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/ui/panels/TopPanel.java
+@@ -273,7 +273,7 @@ public class TopPanel {
+                 break;
+             }
+             if (!hasHpEffect) {
+-                AbstractDungeon.topLevelEffectsQueue.add(new PingHpEffect(this.hpIconX));
++                //AbstractDungeon.topLevelEffectsQueue.add(new PingHpEffect(this.hpIconX));
+             }
+         }
      }
 diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/vfx/AbstractGameEffect.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/vfx/AbstractGameEffect.class
 new file mode 100644

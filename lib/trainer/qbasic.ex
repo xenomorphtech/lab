@@ -46,14 +46,14 @@ defmodule Lab.Trainer.QBasic do
 
   defp run_episode(t, true), do: t
   defp run_episode(t, false) do
-    {:ok, random_action} = Gyx.Core.Spaces.sample(t.gym.action_space)
+    random_action = Enum.random(t.gym.module.actions(t.gym))
     {gym_next, exp = %{done: done, reward: reward}} = t.gym.module.step(t.gym, random_action)
 
-    q_next_max = Lab.Trainer.QTable.next_max(t.qtable, gym_next.current_state)
-    cur_q_val = Lab.Trainer.QTable.get(t.qtable, t.gym.current_state, random_action)
+    cur_q_val = Lab.Trainer.QTable.get(t.qtable, t.gym.observable_state, random_action)
+    q_next_max = Lab.Trainer.QTable.next_max(t.qtable, gym_next.observable_state)
 
     next_q_val = (1 - t.params.alpha) * cur_q_val + t.params.alpha * (reward + t.params.gamma * q_next_max)
-    qtable = Lab.Trainer.QTable.set(t.qtable, t.gym.current_state, random_action, next_q_val)
+    qtable = Lab.Trainer.QTable.set(t.qtable, t.gym.observable_state, random_action, next_q_val)
 
     t = Map.put(t, :gym, gym_next)
     t = Map.put(t, :qtable, qtable)
@@ -75,7 +75,7 @@ defmodule Lab.Trainer.QBasic do
 
   def run_test(t, true), do: t
   def run_test(t, false) do
-      next_action = Lab.Trainer.QTable.next_max_action(t.qtable, t.gym.current_state)
+      next_action = Lab.Trainer.QTable.next_max_action(t.qtable, t.gym.observable_state)
       {gym_next, exp = %{done: done, reward: reward}} = t.gym.module.step(t.gym, next_action)
       t = Map.put(t, :gym, gym_next)
       t = %{t | trajectory: [exp | t.trajectory]}
