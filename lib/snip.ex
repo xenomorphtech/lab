@@ -30,7 +30,7 @@ defmodule Snip do
 
     def solve_sts_qbasic() do
         t = Lab.Trainer.QBasic.init(SlayTheSpire)
-        t = Lab.Trainer.QBasic.train(t, 10)
+        t = Lab.Trainer.QBasic.train(t, 1000)
     end
 
     def sts() do

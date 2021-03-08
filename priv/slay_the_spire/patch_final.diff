@@ -2189,18 +2189,18 @@ index df0123d..176ccf2 100644
          if (playSfx) {
 diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/core/CardCrawlGame$1.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/core/CardCrawlGame$1.class
 new file mode 100644
-index 0000000..5abd88a
+index 0000000..36a19e6
 Binary files /dev/null and b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/core/CardCrawlGame$1.class differ
 diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/core/CardCrawlGame$GameMode.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/core/CardCrawlGame$GameMode.class
 new file mode 100644
-index 0000000..f766f2a
+index 0000000..f067dfe
 Binary files /dev/null and b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/core/CardCrawlGame$GameMode.class differ
 diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/core/CardCrawlGame.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/core/CardCrawlGame.class
 new file mode 100644
-index 0000000..8be2b5e
+index 0000000..122858e
 Binary files /dev/null and b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/core/CardCrawlGame.class differ
 diff --git a/6661e72999ce8b0e2b6f62809e8b2737-original/com/megacrit/cardcrawl/core/CardCrawlGame.java b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/core/CardCrawlGame.java
-index 3ac8b89..55e1294 100644
+index 3ac8b89..6d801d3 100644
 --- a/6661e72999ce8b0e2b6f62809e8b2737-original/com/megacrit/cardcrawl/core/CardCrawlGame.java
 +++ b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/core/CardCrawlGame.java
 @@ -108,6 +108,7 @@ import java.util.Map;
@@ -2230,19 +2230,18 @@ index 3ac8b89..55e1294 100644
              this.sb.begin();
              this.sb.setColor(Color.WHITE);
              switch (mode) {
-@@ -405,6 +406,11 @@ implements ApplicationListener {
+@@ -405,6 +406,10 @@ implements ApplicationListener {
                  this.sb.draw(ImageMaster.WHITE_SQUARE_IMG, (float)Settings.WIDTH, 0.0f, (float)Settings.VERT_LETTERBOX_AMT, (float)Settings.HEIGHT);
              }
              this.sb.end();
 +
 +            if (ApiObj.function_to_call != null) {
-+                logger.info("calling API function on mainthread");
 +                ApiObj.call_it();
 +            }
          }
          catch (Exception e) {
              logger.info("Exception occurred in CardCrawlGame render method!");
-@@ -481,7 +487,7 @@ implements ApplicationListener {
+@@ -481,7 +486,7 @@ implements ApplicationListener {
                      logger.info("[GC] AFTER: " + String.valueOf(SystemStats.getUsedMemory()));
                      logger.info("New Transition Screen, Tip Tracker Refresh: " + (System.currentTimeMillis() - startTime) + "ms");
                      startTime = System.currentTimeMillis();
@@ -2251,7 +2250,7 @@ index 3ac8b89..55e1294 100644
                      if (queueCredits) {
                          queueCredits = false;
                          CardCrawlGame.mainMenuScreen.creditsScreen.open(playCreditsBgm);
-@@ -508,14 +514,14 @@ implements ApplicationListener {
+@@ -508,14 +513,14 @@ implements ApplicationListener {
  
      public static void startOver() {
          startOver = true;
@@ -2268,7 +2267,7 @@ index 3ac8b89..55e1294 100644
      }
  
      private static void doorUnlockScreenCheck() {
-@@ -945,48 +951,47 @@ implements ApplicationListener {
+@@ -945,48 +950,47 @@ implements ApplicationListener {
              }
              ++index;
          }
@@ -2336,97 +2335,18 @@ index 3ac8b89..55e1294 100644
          }
 diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/ApiObj.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/ApiObj.class
 new file mode 100644
-index 0000000..2551db3
+index 0000000..0a3ebf5
 Binary files /dev/null and b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/ApiObj.class differ
 diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/ApiObj.java b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/ApiObj.java
 new file mode 100644
-index 0000000..a50c43b
+index 0000000..77938f8
 --- /dev/null
 +++ b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/ApiObj.java
-@@ -0,0 +1,67 @@
+@@ -0,0 +1,844 @@
 +package com.megacrit.cardcrawl.desktop;
++
++import com.megacrit.cardcrawl.core.CardCrawlGame;
 +import com.megacrit.cardcrawl.desktop.DesktopLauncher;
-+
-+public class ApiObj {
-+    public static Object waiter = new Object();
-+    public static String result = "";
-+    public static String function_to_call = null;
-+    public static int function_arg1 = 0;
-+    public static int function_arg2 = 0;
-+    public static boolean wait_idle = false;
-+    public static boolean wait_idle_skip_reward = false;
-+    public static boolean wait_idle_map_move = false;
-+    public static boolean wait_idle_end_turn = false;
-+
-+    public static void wait_it(String func2c) {
-+        synchronized (waiter) {
-+            try {
-+                function_to_call = func2c;
-+                waiter.wait();
-+            } catch (InterruptedException e)  {
-+                Thread.currentThread().interrupt();
-+            }
-+        }
-+    }
-+
-+    public static void call_it() {
-+        synchronized (waiter) {
-+            switch (function_to_call) {
-+                case "state":
-+                    result = DesktopLauncher.state();
-+                    break;
-+                case "skipReward":
-+                    DesktopLauncher.skipReward(function_arg1);
-+                    break;
-+                case "claimReward":
-+                    DesktopLauncher.claimReward(function_arg1);
-+                    break;
-+                case "claimCardReward":
-+                    DesktopLauncher.claimCardReward(function_arg1, function_arg2);
-+                    break;
-+                case "setCurrMapNode2":
-+                    DesktopLauncher.setCurrMapNode2(function_arg1, function_arg2);
-+                    break;
-+                case "playCard":
-+                    DesktopLauncher.playCard(function_arg1);
-+                    break;
-+                case "playCardTarget":
-+                    DesktopLauncher.playCard(function_arg1, function_arg2);
-+                    break;
-+                case "endTurn":
-+                    DesktopLauncher.endTurn();
-+                    break;
-+                case "startDungeon":
-+                    DesktopLauncher.startDungeon(Long.valueOf(function_arg1));
-+                    break;
-+                default:
-+                    break;
-+            }
-+            function_to_call = null;
-+            wait_idle = false;
-+            wait_idle_skip_reward = false;
-+            wait_idle_map_move = false;
-+            wait_idle_end_turn = false;
-+            waiter.notify();
-+        }
-+    }
-+}
-diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/DesktopLauncher$ApiObj.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/DesktopLauncher$ApiObj.class
-new file mode 100644
-index 0000000..021c9b3
-Binary files /dev/null and b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/DesktopLauncher$ApiObj.class differ
-diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/DesktopLauncher.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/DesktopLauncher.class
-new file mode 100644
-index 0000000..1d450b2
-Binary files /dev/null and b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/DesktopLauncher.class differ
-diff --git a/6661e72999ce8b0e2b6f62809e8b2737-original/com/megacrit/cardcrawl/desktop/DesktopLauncher.java b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/DesktopLauncher.java
-index 5069aff..b31bb59 100644
---- a/6661e72999ce8b0e2b6f62809e8b2737-original/com/megacrit/cardcrawl/desktop/DesktopLauncher.java
-+++ b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/DesktopLauncher.java
-@@ -19,8 +19,875 @@ import java.util.Locale;
- import org.apache.logging.log4j.LogManager;
- import org.apache.logging.log4j.Logger;
- 
 +import java.util.ArrayList;
 +import java.util.Collections;
 +import java.text.MessageFormat;
@@ -2476,21 +2396,417 @@ index 5069aff..b31bb59 100644
 +import com.megacrit.cardcrawl.map.MapEdge;
 +import java.util.Arrays;
 +
- public class DesktopLauncher {
--    private static final Logger logger;
++import java.nio.charset.Charset;
++import java.util.Locale;
++import org.apache.logging.log4j.LogManager;
++import org.apache.logging.log4j.Logger;
++
++public class ApiObj {
 +    public static final Logger logger;
-+    public static boolean monstersOnly = true;
-+    public static boolean magic1 = false;
 +
++    public static Object waiter = new Object();
++    public static String result = "";
++    public static String function_to_call = null;
++    public static int function_arg1 = 0;
++    public static int function_arg2 = 0;
++    public static String state = null;
 +
++    static {
++        System.setProperty("log4j.configurationFile", "log4j2.xml");
++        logger = LogManager.getLogger(DesktopLauncher.class.getName());
++    }
 +
-+    public static String state2() {
-+        String charClass = "";
-+        if (CardCrawlGame.chosenCharacter != null) { charClass = CardCrawlGame.chosenCharacter.name(); }
-+        boolean isPopupOpen = CardCrawlGame.isPopupOpen;
++    public static String state() {
++        ApiObj.wait_it("state");
++        return ApiObj.result;
++    }
 +
-+        String json = MessageFormat.format("'{'\"player\": \"{0}\"'}'}", charClass);
-+        return json;
++    public static void skipReward(int rewardIndex) {
++        ApiObj.function_arg1 = rewardIndex;
++        ApiObj.wait_it("skipReward");
++    }
++
++    public static void claimReward(int rewardIndex) {
++        ApiObj.function_arg1 = rewardIndex;
++        ApiObj.wait_it("claimReward");
++    }
++
++    public static void claimCardReward(int rewardIndex, int cardIndex) {
++        ApiObj.function_arg1 = rewardIndex;
++        ApiObj.function_arg2 = cardIndex;
++        ApiObj.wait_it("claimCardReward");
++    }
++
++    public static void setCurrMapNode2(int x, int y) {
++        ApiObj.function_arg1 = x;
++        ApiObj.function_arg2 = y;
++        ApiObj.wait_it("setCurrMapNode2");
++    }
++
++    public static void playCard(int cardIndex) {
++        ApiObj.function_arg1 = cardIndex;
++        ApiObj.wait_it("playCard");
++    }
++
++    public static void playCard(int cardIndex, int monsterIndex) {
++        ApiObj.function_arg1 = cardIndex;
++        ApiObj.function_arg2 = monsterIndex;
++        ApiObj.wait_it("playCardTarget");
++    }
++
++    public static void endTurn() {
++        ApiObj.wait_it("endTurn");
++    }
++
++    public static void startDungeon(int seed) {
++        ApiObj.function_arg1 = seed;
++        ApiObj.wait_it("startDungeon");
++    }
++
++    public static void wait_it(String func2c) {
++        synchronized (waiter) {
++            try {
++                function_to_call = func2c;
++                waiter.wait();
++            } catch (InterruptedException e)  {
++                Thread.currentThread().interrupt();
++            }
++        }
++    }
++
++    public static void call_it() {
++        logger.info(MessageFormat.format("calling API {0} {1}", function_to_call, state));
++
++        if (state == null)
++            state = "";
++        synchronized (waiter) {
++            switch (state) {
++                case "wait_dungeon_1":
++                    if (CardCrawlGame.mode == CardCrawlGame.GameMode.CHAR_SELECT) {
++                        state = null;
++                        function_to_call = "startDungeon2";
++                    }
++                    return;
++                case "wait_dungeon_2":
++                    if (CardCrawlGame.dungeon.screen == AbstractDungeon.CurrentScreen.MAP ||  CardCrawlGame.dungeon.screen == AbstractDungeon.CurrentScreen.NONE)
++                        state = "notify";
++                    return;
++                case "wait_skip_reward":
++                    if (function_arg2 != AbstractDungeon.combatRewardScreen.rewards.size()) {
++                        function_to_call = null;
++                        state = null;
++                        waiter.notify();
++                        return;
++                    }
++                    return;
++                case "wait_idle":
++                    if (waitIdleEffects())
++                        return;
++                    function_to_call = null;
++                    state = null;
++                    waiter.notify();
++                    return;
++                case "wait_end_turn":
++                    if (function_arg1 == GameActionManager.turn)
++                        return;
++                    function_to_call = null;
++                    state = null;
++                    waiter.notify();
++                    return;
++                case "wait_move_room":
++                    MapRoomNode node = AbstractDungeon.map.get(function_arg2).get(function_arg1);
++
++                    String nodeRoomType = "";
++                    if (node.room instanceof EmptyRoom) {
++                        nodeRoomType = "EmptyRoom";
++                    } else if (node.room instanceof RestRoom) {
++                        nodeRoomType = "RestRoom";
++                    } else if (node.room instanceof ShopRoom) {
++                        nodeRoomType = "ShopRoom";
++                    } else if (node.room instanceof EventRoom) {
++                        nodeRoomType = "EventRoom";
++                    } else if (node.room instanceof TreasureRoom) {
++                        nodeRoomType = "TreasureRoom";
++                    } else if (node.room instanceof MonsterRoom) {
++                        nodeRoomType = "MonsterRoom";
++                    } else if (node.room instanceof MonsterRoomElite) {
++                        nodeRoomType = "MonsterRoomElite";
++                    } else if (node.room instanceof MonsterRoomBoss) {
++                        nodeRoomType = "MonsterRoomBoss";
++                    } else if (node.room instanceof TreasureRoomBoss) {
++                        nodeRoomType = "TreasureRoomBoss";
++                    }
++
++                    if (nodeRoomType == "MonsterRoom" || nodeRoomType == "MonsterRoomElite"
++                        || nodeRoomType == "MonsterRoomBoss" || nodeRoomType == "TreasureRoomBoss") {
++                        if (EnergyPanel.totalCount == 0) {
++                            return;
++                        }
++                    }
++                    state = "wait_idle";
++                    return;
++                case "notify":
++                    function_to_call = null;
++                    state = null;
++                    waiter.notify();
++                    return;
++                default:
++                    break;
++            }
++
++            switch (function_to_call) {
++                case "state":
++                    function_to_call = null;
++                    result = state_1();
++                    waiter.notify();
++                    break;
++                case "skipReward":
++                    state = "wait_skip_reward";
++                    function_arg2 = AbstractDungeon.combatRewardScreen.rewards.size();
++                    skipReward_1(function_arg1);
++                    break;
++                case "claimReward":
++                    state = "wait_skip_reward";
++                    function_arg2 = AbstractDungeon.combatRewardScreen.rewards.size();
++                    claimReward_1(function_arg1);
++                    break;
++                case "claimCardReward":
++                    state = "wait_skip_reward";
++                    function_arg2 = AbstractDungeon.combatRewardScreen.rewards.size();
++                    claimCardReward_1(function_arg1, function_arg2);
++                    break;
++                case "setCurrMapNode2":
++                    state = "wait_move_room";
++                    setCurrMapNode2_1(function_arg1, function_arg2);
++                    break;
++                case "playCard":
++                    state = "wait_idle";
++                    playCard_1(function_arg1);
++                    break;
++                case "playCardTarget":
++                    state = "wait_idle";
++                    playCard_1(function_arg1, function_arg2);
++                    break;
++                case "endTurn":
++                    state = "wait_end_turn";
++                    function_arg1 = GameActionManager.turn;
++                    endTurn_1();
++                    break;
++                case "startDungeon":
++                    state = "wait_dungeon_1";
++                    restartDungeon_1();
++                    break;
++                case "startDungeon2":
++                    state = "wait_dungeon_2";
++                    startDungeon_1(Long.valueOf(function_arg1));
++                    break;
++                default:
++                    break;
++            }
++        }
++    }
++
++    public static void setSeed(Long seed) {
++        logger.info("Setting seed: " + seed);
++        Settings.seed = seed;
++        Settings.seedSet = true;
++        AbstractDungeon.monsterRng = new Random(seed);
++        AbstractDungeon.eventRng = new Random(seed);
++        AbstractDungeon.merchantRng = new Random(seed);
++        AbstractDungeon.cardRng = new Random(seed);
++        AbstractDungeon.treasureRng = new Random(seed);
++        AbstractDungeon.relicRng = new Random(seed);
++        AbstractDungeon.monsterHpRng = new Random(seed);
++        AbstractDungeon.potionRng = new Random(seed);
++        AbstractDungeon.aiRng = new Random(seed);
++        AbstractDungeon.shuffleRng = new Random(seed);
++        AbstractDungeon.cardRandomRng = new Random(seed);
++        AbstractDungeon.miscRng = new Random(seed);
++    }
++
++    public static void restartDungeon_1() {
++        if (CardCrawlGame.chosenCharacter != null) {
++            AbstractDungeon.firstRoomChosen = false;
++            CardCrawlGame.startOver();
++        }
++    }
++
++    public static void startDungeon_1(Long seed) {
++        if (DesktopLauncher.monstersOnly)
++            ModHelper.setMods(Arrays.asList("Uncertain Future"));
++
++        setSeed(seed);
++        Settings.FAST_MODE = true;
++        //Settings.ACTION_DUR_XFAST = 0.01f;
++        //Settings.ACTION_DUR_FASTER = 0.01f;
++        //Settings.ACTION_DUR_FAST = 0.01f;
++        //Settings.ACTION_DUR_MED = 0.01f;
++
++        TipTracker.showAgain("NEOW_SKIP");
++
++        AbstractDungeon.screen = AbstractDungeon.CurrentScreen.NONE;
++
++        CardCrawlGame.loadingSave = false;
++        CardCrawlGame.chosenCharacter = AbstractPlayer.PlayerClass.IRONCLAD;
++        CardCrawlGame.mode = CardCrawlGame.GameMode.CHAR_SELECT;
++        CardCrawlGame.mainMenuScreen.fadedOut = true;
++    }
++
++    public static void endTurn_1() {
++        AbstractDungeon.currMapNode.room.endTurn();
++    }
++
++    public static void playCard_1(int cardIndex) {
++        AbstractCard card = CardCrawlGame.dungeon.player.hand.group.get(cardIndex);
++
++        CardCrawlGame.dungeon.player.hoveredCard = card;
++        CardCrawlGame.dungeon.player.playCard();
++    }
++
++    public static void playCard_1(int cardIndex, int monsterIndex) {
++        AbstractCard card = CardCrawlGame.dungeon.player.hand.group.get(cardIndex);
++        AbstractMonster monster = CardCrawlGame.dungeon.currMapNode.room.monsters.monsters.get(monsterIndex);
++
++        CardCrawlGame.dungeon.player.hoveredCard = card;
++        CardCrawlGame.dungeon.player.hoveredMonster = monster;
++        CardCrawlGame.dungeon.player.playCard();
++    }
++
++    public static void setCurrMapNode2_1(int x, int y) {
++        MapRoomNode node = AbstractDungeon.map.get(y).get(x);
++
++        if (y == 0) {
++            node.hb.hovered = true;
++            AbstractDungeon.dungeonMapScreen.clicked = true;
++            DesktopLauncher.magic1 = true;
++        } else {
++            AbstractDungeon.getCurrMapNode().taken = true;
++
++            MapEdge connectedEdge = AbstractDungeon.getCurrMapNode().getEdgeConnectedTo(node);
++            if (connectedEdge != null) {
++                connectedEdge.markAsTaken();
++            }
++            node.animWaitTimer = 0.0f;
++            AbstractDungeon.nextRoom = node;
++            AbstractDungeon.pathX.add(node.x);
++            AbstractDungeon.pathY.add(node.y);
++            if (!AbstractDungeon.isDungeonBeaten) {
++                AbstractDungeon.nextRoomTransitionStart();
++            }
++
++            node.hb.hovered = true;
++            AbstractDungeon.screen = AbstractDungeon.CurrentScreen.MAP;
++            AbstractDungeon.dungeonMapScreen.clicked = true;
++        }
++    }
++
++    public static boolean waitIdleEffects() {
++        boolean won = true;
++        if (AbstractDungeon.currMapNode != null && AbstractDungeon.currMapNode.room != null
++            && AbstractDungeon.currMapNode.room.monsters != null
++            && AbstractDungeon.currMapNode.room.monsters.monsters.size() > 0
++            && AbstractDungeon.getCurrRoom().phase.name() == "COMBAT")
++        {
++            ArrayList<AbstractMonster> monsters = CardCrawlGame.dungeon.currMapNode.room.monsters.monsters;
++            for (AbstractMonster monster : monsters)
++            {
++                if (monster.isDeadOrEscaped() == false)
++                    won = false;
++            }
++        } else {
++            won = false;
++        }
++
++        if (AbstractDungeon.topLevelEffects.isEmpty()
++            && AbstractDungeon.topLevelEffectsQueue.isEmpty()
++            && AbstractDungeon.effectList.isEmpty()
++            && AbstractDungeon.effectsQueue.isEmpty()
++            && AbstractDungeon.actionManager.actions.isEmpty()
++            && AbstractDungeon.actionManager.preTurnActions.isEmpty()
++            && AbstractDungeon.actionManager.cardQueue.isEmpty()
++            && AbstractDungeon.actionManager.monsterQueue.isEmpty()
++            && AbstractDungeon.actionManager.currentAction == null
++            && AbstractDungeon.actionManager.monsterAttacksQueued == true
++            && AbstractRoom.waitTimer <= 0.0f
++            && AbstractDungeon.actionManager.turnHasEnded == false
++        ){
++            if (won == true && EnergyPanel.totalCount != 0) {
++                return true;
++            }
++            return false;
++        }
++
++        if (AbstractDungeon.actionManager.actions.isEmpty() == false && CardCrawlGame.dungeon.player.isDead)
++            return false;
++
++        logger.info(MessageFormat.format("waiting effect actions.. {0} {1} {2} | {3} {4} {5} | {6} {7} {8}",
++            AbstractDungeon.topLevelEffects.isEmpty(), AbstractDungeon.topLevelEffectsQueue.isEmpty(), AbstractDungeon.effectList.isEmpty(),
++            AbstractDungeon.effectsQueue.isEmpty(), AbstractDungeon.actionManager.actions.isEmpty(), AbstractDungeon.actionManager.preTurnActions.isEmpty(),
++            AbstractDungeon.actionManager.cardQueue.isEmpty(), AbstractDungeon.actionManager.monsterQueue.isEmpty(), AbstractDungeon.actionManager.currentAction == null));
++        if (AbstractDungeon.topLevelEffects.size() > 0) {
++            logger.info(AbstractDungeon.topLevelEffects.get(0).getClass().getName());
++        }
++        if (AbstractDungeon.effectList.size() > 0) {
++            logger.info(AbstractDungeon.effectList.get(0).getClass().getName());
++        }
++        return true;
++    }
++
++    public static void skipReward_1(int rewardIndex) {
++        EnergyPanel.totalCount = 0;
++
++        String screenType = "";
++        if (CardCrawlGame.dungeon.screen != null) { screenType = CardCrawlGame.dungeon.screen.name(); }
++
++        switch (screenType) {
++            case "COMBAT_REWARD":
++                AbstractDungeon.combatRewardScreen.rewards.remove(rewardIndex);
++                break;
++            default:
++                break;
++        }
++    }
++
++    public static void claimReward_1(int rewardIndex) {
++        EnergyPanel.totalCount = 0;
++
++        String screenType = "";
++        if (CardCrawlGame.dungeon.screen != null) { screenType = CardCrawlGame.dungeon.screen.name(); }
++
++        switch (screenType) {
++            case "COMBAT_REWARD":
++                ArrayList<RewardItem> rewards = AbstractDungeon.combatRewardScreen.rewards;
++                rewards.get(rewardIndex).isDone = true;
++                break;
++            default:
++                break;
++        }
++    }
++
++    public static void claimCardReward_1(int rewardIndex, int cardIndex) {
++        EnergyPanel.totalCount = 0;
++
++        String screenType = "";
++        if (CardCrawlGame.dungeon.screen != null) { screenType = CardCrawlGame.dungeon.screen.name(); }
++
++        switch (screenType) {
++            case "COMBAT_REWARD":
++                ArrayList<RewardItem> rewards = AbstractDungeon.combatRewardScreen.rewards;
++                RewardItem rItem = rewards.get(rewardIndex);
++
++                AbstractCard hoveredCard = rItem.cards.get(cardIndex);
++                AbstractDungeon.effectsQueue.add(new FastCardObtainEffect(hoveredCard, hoveredCard.current_x, hoveredCard.current_y));
++
++                AbstractDungeon.combatRewardScreen.rewards.remove(rItem);
++                AbstractDungeon.combatRewardScreen.positionRewards();
++                if (AbstractDungeon.combatRewardScreen.rewards.isEmpty()) {
++                    AbstractDungeon.combatRewardScreen.hasTakenAll = true;
++                    AbstractDungeon.overlayMenu.proceedButton.show();
++                }
++                break;
++            default:
++                break;
++        }
 +    }
 +
 +    public static String replaceLast(String text, String regex, String replacement) {
@@ -2502,32 +2818,6 @@ index 5069aff..b31bb59 100644
 +        text = text.concat(replaceLast(members, ",", ""));
 +        return text.concat("]");
 +    }
-+
-+//This breaks runtime lol wtf (for javaerlang)?? Need to inline it
-+/*
-+    public static String getRoomType(AbstractRoom room) {
-+        if (room instanceof EmptyRoom) {
-+            return "EmptyRoom";
-+        } else if (room instanceof RestRoom) {
-+            return "RestRoom";
-+        } else if (room instanceof ShopRoom) {
-+            return "ShopRoom";
-+        } else if (room instanceof EventRoom) {
-+            return "EventRoom";
-+        } else if (room instanceof TreasureRoom) {
-+            return "TreasureRoom";
-+        } else if (room instanceof MonsterRoom) {
-+            return "MonsterRoom";
-+        } else if (room instanceof MonsterRoomElite) {
-+            return "MonsterRoomElite";
-+        } else if (room instanceof MonsterRoomBoss) {
-+            return "MonsterRoomBoss";
-+        } else if (room instanceof TreasureRoomBoss) {
-+            return "TreasureRoomBoss";
-+        }
-+        return "";
-+    }
-+*/
 +
 +    public static String buildCardList(ArrayList<AbstractCard> cards) {
 +        String cardText = "[";
@@ -2570,12 +2860,7 @@ index 5069aff..b31bb59 100644
 +        return cardText.concat("]");
 +    }
 +
-+    public static String call_state() {
-+        ApiObj.wait_it("state");
-+        return ApiObj.result;
-+    }
-+
-+    public static String state() {
++    public static String state_1() {
 +        boolean isPopupOpen = CardCrawlGame.isPopupOpen;
 +
 +        //CardCrawlGame.dungeon.floorNum;
@@ -2901,385 +3186,39 @@ index 5069aff..b31bb59 100644
 +            json_player, json_fight, json_game, screenType, isScreenUp, currMapNodeRoomType, isPopupOpen);
 +        return json;
 +    }
-+
-+    public static void call_skipReward(int rewardIndex) {
-+        ApiObj.function_arg1 = rewardIndex;
-+        ApiObj.wait_it("skipReward");
-+    }
-+
-+    public static void skipReward(int rewardIndex) {
-+        EnergyPanel.totalCount = 0;
-+
-+        String screenType = "";
-+        if (CardCrawlGame.dungeon.screen != null) { screenType = CardCrawlGame.dungeon.screen.name(); }
-+
-+        int oldSize = AbstractDungeon.combatRewardScreen.rewards.size();
-+
-+        switch (screenType) {
-+            case "COMBAT_REWARD":
-+                AbstractDungeon.combatRewardScreen.rewards.remove(rewardIndex);
-+                break;
-+            default:
-+                oldSize = -1;
-+                break;
-+        }
-+        while(oldSize == AbstractDungeon.combatRewardScreen.rewards.size()) {
-+            try{ Thread.sleep(3);} catch(InterruptedException e){}
-+        }
-+    }
-+
-+    public static void call_claimReward(int rewardIndex) {
-+        ApiObj.function_arg1 = rewardIndex;
-+        ApiObj.wait_it("claimReward");
-+    }
-+
-+    public static void claimReward(int rewardIndex) {
-+        EnergyPanel.totalCount = 0;
-+
-+        String screenType = "";
-+        if (CardCrawlGame.dungeon.screen != null) { screenType = CardCrawlGame.dungeon.screen.name(); }
-+
-+        int oldSize = AbstractDungeon.combatRewardScreen.rewards.size();
-+
-+        switch (screenType) {
-+            case "COMBAT_REWARD":
-+                ArrayList<RewardItem> rewards = AbstractDungeon.combatRewardScreen.rewards;
-+                rewards.get(rewardIndex).isDone = true;
-+                break;
-+            default:
-+                oldSize = -1;
-+                break;
-+        }
-+        while(oldSize == AbstractDungeon.combatRewardScreen.rewards.size()) {
-+            try{ Thread.sleep(3);} catch(InterruptedException e){}
-+        }
-+    }
-+
-+    public static void call_claimCardReward(int rewardIndex, int cardIndex) {
-+        ApiObj.function_arg1 = rewardIndex;
-+        ApiObj.function_arg2 = cardIndex;
-+        ApiObj.wait_it("claimCardReward");
-+    }
-+
-+    public static void claimCardReward(int rewardIndex, int cardIndex) {
-+        EnergyPanel.totalCount = 0;
-+
-+        String screenType = "";
-+        if (CardCrawlGame.dungeon.screen != null) { screenType = CardCrawlGame.dungeon.screen.name(); }
-+
-+        int oldSize = AbstractDungeon.combatRewardScreen.rewards.size();
-+
-+        switch (screenType) {
-+            case "COMBAT_REWARD":
-+                ArrayList<RewardItem> rewards = AbstractDungeon.combatRewardScreen.rewards;
-+                RewardItem rItem = rewards.get(rewardIndex);
-+
-+                AbstractCard hoveredCard = rItem.cards.get(cardIndex);
-+                AbstractDungeon.effectsQueue.add(new FastCardObtainEffect(hoveredCard, hoveredCard.current_x, hoveredCard.current_y));
-+
-+                AbstractDungeon.combatRewardScreen.rewards.remove(rItem);
-+                AbstractDungeon.combatRewardScreen.positionRewards();
-+                if (AbstractDungeon.combatRewardScreen.rewards.isEmpty()) {
-+                    AbstractDungeon.combatRewardScreen.hasTakenAll = true;
-+                    AbstractDungeon.overlayMenu.proceedButton.show();
-+                }
-+                break;
-+            default:
-+                oldSize = -1;
-+                break;
-+        }
-+
-+        while(oldSize == AbstractDungeon.combatRewardScreen.rewards.size()) {
-+            try{ Thread.sleep(3);} catch(InterruptedException e){}
-+        }
-+    }
-+
-+    public static void waitIdle() {
-+        while (true) {
-+            if (//AbstractDungeon.topLevelEffects.isEmpty()
-+                //&& AbstractDungeon.topLevelEffectsQueue.isEmpty()
-+                //&& AbstractDungeon.effectList.isEmpty()
-+                //&& AbstractDungeon.effectsQueue.isEmpty()
-+                AbstractDungeon.actionManager.actions.isEmpty()
-+                && AbstractDungeon.actionManager.preTurnActions.isEmpty()
-+                && AbstractDungeon.actionManager.cardQueue.isEmpty()
-+                && AbstractDungeon.actionManager.monsterQueue.isEmpty()
-+                && AbstractDungeon.actionManager.currentAction == null
-+            ){
-+                break;
-+            }
-+            logger.info(MessageFormat.format("waiting actions.. {0} {1} {2} | {3} {4} {5} | {6} {7} {8}",
-+                AbstractDungeon.topLevelEffects.isEmpty(), AbstractDungeon.topLevelEffectsQueue.isEmpty(), AbstractDungeon.effectList.isEmpty(),
-+                AbstractDungeon.effectsQueue.isEmpty(), AbstractDungeon.actionManager.actions.isEmpty(), AbstractDungeon.actionManager.preTurnActions.isEmpty(),
-+                AbstractDungeon.actionManager.cardQueue.isEmpty(), AbstractDungeon.actionManager.monsterQueue.isEmpty(), AbstractDungeon.actionManager.currentAction == null));
-+            try{ Thread.sleep(3);} catch(InterruptedException e){}
-+        }
-+    }
-+
-+    //For dying mobs
-+    public static void waitIdleEffects() {
-+        while (true) {
-+            /*if (AbstractDungeon.actionManager.currentAction != null) {
-+                String className = AbstractDungeon.actionManager.currentAction.getClass().getSimpleName();
-+                if (className == null) {className = "unknonw";}
-+                logger.info("action ".concat(className));
-+            }*/
-+
-+            boolean won = true;
-+            if (AbstractDungeon.currMapNode != null && AbstractDungeon.currMapNode.room != null
-+                && AbstractDungeon.currMapNode.room.monsters != null
-+                && AbstractDungeon.currMapNode.room.monsters.monsters.size() > 0
-+                && AbstractDungeon.getCurrRoom().phase.name() == "COMBAT")
-+            {
-+                ArrayList<AbstractMonster> monsters = CardCrawlGame.dungeon.currMapNode.room.monsters.monsters;
-+                for (AbstractMonster monster : monsters)
-+                {
-+                    if (monster.isDeadOrEscaped() == false)
-+                        won = false;
-+                }
-+            } else {
-+                won = false;
-+            }
-+
-+            if (AbstractDungeon.topLevelEffects.isEmpty()
-+                && AbstractDungeon.topLevelEffectsQueue.isEmpty()
-+                && AbstractDungeon.effectList.isEmpty()
-+                && AbstractDungeon.effectsQueue.isEmpty()
-+                && AbstractDungeon.actionManager.actions.isEmpty()
-+                && AbstractDungeon.actionManager.preTurnActions.isEmpty()
-+                && AbstractDungeon.actionManager.cardQueue.isEmpty()
-+                && AbstractDungeon.actionManager.monsterQueue.isEmpty()
-+                && AbstractDungeon.actionManager.currentAction == null
-+            ){
-+                if (won == true && EnergyPanel.totalCount != 0) {
-+                    try{ Thread.sleep(3);} catch(InterruptedException e){}
-+                    continue;
-+                }
-+                break;
-+            }
-+
-+            if (AbstractDungeon.actionManager.actions.isEmpty() == false && CardCrawlGame.dungeon.player.isDead)
-+                break;
-+
-+            logger.info(MessageFormat.format("waiting effect actions.. {0} {1} {2} | {3} {4} {5} | {6} {7} {8}",
-+                AbstractDungeon.topLevelEffects.isEmpty(), AbstractDungeon.topLevelEffectsQueue.isEmpty(), AbstractDungeon.effectList.isEmpty(),
-+                AbstractDungeon.effectsQueue.isEmpty(), AbstractDungeon.actionManager.actions.isEmpty(), AbstractDungeon.actionManager.preTurnActions.isEmpty(),
-+                AbstractDungeon.actionManager.cardQueue.isEmpty(), AbstractDungeon.actionManager.monsterQueue.isEmpty(), AbstractDungeon.actionManager.currentAction == null));
-+            if (AbstractDungeon.topLevelEffects.size() > 0) {
-+                logger.info(AbstractDungeon.topLevelEffects.get(0).getClass().getName());
-+            }
-+            if (AbstractDungeon.effectList.size() > 0) {
-+                logger.info(AbstractDungeon.effectList.get(0).getClass().getName());
-+            }
-+            try{ Thread.sleep(3);} catch(InterruptedException e){}
-+        }
-+    }
++}
+diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/DesktopLauncher$ApiObj.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/DesktopLauncher$ApiObj.class
+new file mode 100644
+index 0000000..021c9b3
+Binary files /dev/null and b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/DesktopLauncher$ApiObj.class differ
+diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/DesktopLauncher.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/DesktopLauncher.class
+new file mode 100644
+index 0000000..8bb2e12
+Binary files /dev/null and b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/DesktopLauncher.class differ
+diff --git a/6661e72999ce8b0e2b6f62809e8b2737-original/com/megacrit/cardcrawl/desktop/DesktopLauncher.java b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/DesktopLauncher.java
+index 5069aff..e9d1105 100644
+--- a/6661e72999ce8b0e2b6f62809e8b2737-original/com/megacrit/cardcrawl/desktop/DesktopLauncher.java
++++ b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/DesktopLauncher.java
+@@ -20,7 +20,38 @@ import org.apache.logging.log4j.LogManager;
+ import org.apache.logging.log4j.Logger;
+ 
+ public class DesktopLauncher {
+-    private static final Logger logger;
++    public static final Logger logger;
++    public static boolean monstersOnly = true;
++    public static boolean magic1 = false;
 +
 +    public static void showMap() {
-+        CardCrawlGame.dungeon.screen = AbstractDungeon.CurrentScreen.MAP;
-+    }
-+
-+    public static void setCurrMapNode(int x, int y) {
-+        MapRoomNode node = AbstractDungeon.map.get(y).get(x);
-+        //AbstractDungeon.nextRoom = node;
-+        //CardCrawlGame.dungeon.nextRoomTransition();
-+        //AbstractDungeon.nextRoomTransitionStart();
-+        AbstractDungeon.screen = AbstractDungeon.CurrentScreen.MAP;
-+        node.hb.hovered = true;
-+        AbstractDungeon.dungeonMapScreen.clicked = true;
++        //CardCrawlGame.dungeon.screen = AbstractDungeon.CurrentScreen.MAP;
 +    }
 +
 +    public static void waitScreenChange() {
 +        String oldScreen = CardCrawlGame.dungeon.screen.name();
-+        waitIdle();
 +        while (oldScreen == CardCrawlGame.dungeon.screen.name()) {
 +            logger.info("waiting screen change..");
 +            try{ Thread.sleep(3);} catch(InterruptedException e){}
 +        }
 +    }
-+
-+    public static void call_setCurrMapNode2(int x, int y) {
-+        ApiObj.function_arg1 = x;
-+        ApiObj.function_arg2 = y;
-+        ApiObj.wait_it("setCurrMapNode2");
-+    }
-+
-+    public static void setCurrMapNode2(int x, int y) {
-+        MapRoomNode node = AbstractDungeon.map.get(y).get(x);
-+
-+        if (y == 0) {
-+            node.hb.hovered = true;
-+            AbstractDungeon.dungeonMapScreen.clicked = true;
-+            DesktopLauncher.magic1 = true;
-+        } else {
-+            AbstractDungeon.getCurrMapNode().taken = true;
-+
-+            MapEdge connectedEdge = AbstractDungeon.getCurrMapNode().getEdgeConnectedTo(node);
-+            if (connectedEdge != null) {
-+                connectedEdge.markAsTaken();
-+            }
-+            node.animWaitTimer = 0.0f;
-+            AbstractDungeon.nextRoom = node;
-+            AbstractDungeon.pathX.add(node.x);
-+            AbstractDungeon.pathY.add(node.y);
-+            if (!AbstractDungeon.isDungeonBeaten) {
-+                AbstractDungeon.nextRoomTransitionStart();
-+            }
-+
-+            node.hb.hovered = true;
-+            AbstractDungeon.screen = AbstractDungeon.CurrentScreen.MAP;
-+            AbstractDungeon.dungeonMapScreen.clicked = true;
-+        }
-+
-+        String nodeRoomType = "";
-+        if (node.room instanceof EmptyRoom) {
-+            nodeRoomType = "EmptyRoom";
-+        } else if (node.room instanceof RestRoom) {
-+            nodeRoomType = "RestRoom";
-+        } else if (node.room instanceof ShopRoom) {
-+            nodeRoomType = "ShopRoom";
-+        } else if (node.room instanceof EventRoom) {
-+            nodeRoomType = "EventRoom";
-+        } else if (node.room instanceof TreasureRoom) {
-+            nodeRoomType = "TreasureRoom";
-+        } else if (node.room instanceof MonsterRoom) {
-+            nodeRoomType = "MonsterRoom";
-+        } else if (node.room instanceof MonsterRoomElite) {
-+            nodeRoomType = "MonsterRoomElite";
-+        } else if (node.room instanceof MonsterRoomBoss) {
-+            nodeRoomType = "MonsterRoomBoss";
-+        } else if (node.room instanceof TreasureRoomBoss) {
-+            nodeRoomType = "TreasureRoomBoss";
-+        }
-+
-+        if (nodeRoomType == "MonsterRoom" || nodeRoomType == "MonsterRoomElite"
-+            || nodeRoomType == "MonsterRoomBoss" || nodeRoomType == "TreasureRoomBoss") {
-+            while (EnergyPanel.totalCount == 0) {
-+                try{ Thread.sleep(3);} catch(InterruptedException e){}
-+            }
-+        }
-+
-+        //waitIdle();
-+        waitIdleEffects();
-+    }
-+
-+    public static void call_playCard(int cardIndex) {
-+        ApiObj.function_arg1 = cardIndex;
-+        ApiObj.wait_it("playCard");
-+    }
-+
-+    public static void playCard(int cardIndex) {
-+        AbstractCard card = CardCrawlGame.dungeon.player.hand.group.get(cardIndex);
-+
-+        CardCrawlGame.dungeon.player.hoveredCard = card;
-+        CardCrawlGame.dungeon.player.playCard();
-+
-+        //waitIdle();
-+        waitIdleEffects();
-+    }
-+
-+    public static void call_playCard(int cardIndex, int monsterIndex) {
-+        ApiObj.function_arg1 = cardIndex;
-+        ApiObj.function_arg2 = monsterIndex;
-+        ApiObj.wait_it("playCardTarget");
-+    }
-+
-+    public static void playCard(int cardIndex, int monsterIndex) {
-+        AbstractCard card = CardCrawlGame.dungeon.player.hand.group.get(cardIndex);
-+        AbstractMonster monster = CardCrawlGame.dungeon.currMapNode.room.monsters.monsters.get(monsterIndex);
-+
-+        CardCrawlGame.dungeon.player.hoveredCard = card;
-+        CardCrawlGame.dungeon.player.hoveredMonster = monster;
-+        CardCrawlGame.dungeon.player.playCard();
-+
-+        //waitIdle();
-+        waitIdleEffects();
-+    }
-+
-+    public static void call_endTurn() {
-+        ApiObj.wait_it("endTurn");
-+    }
-+
-+    public static void endTurn() {
-+        AbstractDungeon.currMapNode.room.endTurn();
-+        int oldTurn = GameActionManager.turn;
-+        while (oldTurn == GameActionManager.turn) {
-+            try{ Thread.sleep(8);} catch(InterruptedException e){}
-+        }
-+        try{ Thread.sleep(50);} catch(InterruptedException e){}
-+        //waitIdle();
-+        waitIdleEffects();
-+    }
-+
-+    public static void setSeed(Long seed) {
-+        logger.info("Setting seed: " + seed);
-+        Settings.seed = seed;
-+        Settings.seedSet = true;
-+        AbstractDungeon.monsterRng = new Random(seed);
-+        AbstractDungeon.eventRng = new Random(seed);
-+        AbstractDungeon.merchantRng = new Random(seed);
-+        AbstractDungeon.cardRng = new Random(seed);
-+        AbstractDungeon.treasureRng = new Random(seed);
-+        AbstractDungeon.relicRng = new Random(seed);
-+        AbstractDungeon.monsterHpRng = new Random(seed);
-+        AbstractDungeon.potionRng = new Random(seed);
-+        AbstractDungeon.aiRng = new Random(seed);
-+        AbstractDungeon.shuffleRng = new Random(seed);
-+        AbstractDungeon.cardRandomRng = new Random(seed);
-+        AbstractDungeon.miscRng = new Random(seed);
-+    }
-+
-+    public static void call_startDungeon(int seed) {
-+        ApiObj.function_to_call = ;
-+        ApiObj.function_arg1 = seed;
-+        ApiObj.wait_it("startDungeon");
-+    }
-+
-+    public static void startDungeon(Long seed) {
-+        startDungeon_1(seed, true, 0);
-+    }
-+
-+    public static void startDungeon_1(Long seed, boolean sleep, int step) {
-+        if (step == 0) {
-+            if (CardCrawlGame.chosenCharacter != null) {
-+                AbstractDungeon.firstRoomChosen = false;
-+                CardCrawlGame.startOver();
-+                if (sleep == true) {
-+                    while (true) {
-+                        if (CardCrawlGame.mode == CardCrawlGame.GameMode.CHAR_SELECT)
-+                            break;
-+                       try{ Thread.sleep(10);} catch(InterruptedException e){}
-+                    }
-+                } else {
-+                    return;
-+                }
-+            }
-+        }
-+        if (step == 1) {
-+            if (CardCrawlGame.mode != CardCrawlGame.GameMode.CHAR_SELECT)
-+                return;
-+        }
-+
-+        if (monstersOnly)
-+            ModHelper.setMods(Arrays.asList("Uncertain Future"));
-+
-+        setSeed(seed);
-+        Settings.FAST_MODE = true;
-+        //Settings.ACTION_DUR_XFAST = 0.01f;
-+        //Settings.ACTION_DUR_FASTER = 0.01f;
-+        //Settings.ACTION_DUR_FAST = 0.01f;
-+        //Settings.ACTION_DUR_MED = 0.01f;
-+
-+        TipTracker.showAgain("NEOW_SKIP");
-+
-+        AbstractDungeon.screen = AbstractDungeon.CurrentScreen.NONE;
-+
-+        CardCrawlGame.loadingSave = false;
-+        CardCrawlGame.chosenCharacter = AbstractPlayer.PlayerClass.IRONCLAD;
-+        CardCrawlGame.mode = CardCrawlGame.GameMode.CHAR_SELECT;
-+        CardCrawlGame.mainMenuScreen.fadedOut = true;
-+    }
-+
 +
 +    public static void main_silent() {
 +        LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
@@ -3300,7 +3239,7 @@ index 5069aff..b31bb59 100644
  
      public static void main(String[] arg) {
          logger.info("time: " + System.currentTimeMillis());
-@@ -38,11 +905,14 @@ public class DesktopLauncher {
+@@ -38,11 +69,14 @@ public class DesktopLauncher {
          STSSentry.setup();
          try {
              LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
@@ -3396,6 +3335,44 @@ index f8c44a3..cef454c 100644
      }
  
      @Override
+diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/events/AbstractEvent$EventType.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/events/AbstractEvent$EventType.class
+new file mode 100644
+index 0000000..ceca0d3
+Binary files /dev/null and b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/events/AbstractEvent$EventType.class differ
+diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/events/AbstractEvent.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/events/AbstractEvent.class
+new file mode 100644
+index 0000000..d8025c1
+Binary files /dev/null and b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/events/AbstractEvent.class differ
+diff --git a/6661e72999ce8b0e2b6f62809e8b2737-original/com/megacrit/cardcrawl/events/AbstractEvent.java b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/events/AbstractEvent.java
+index e0f72e2..fc243c4 100644
+--- a/6661e72999ce8b0e2b6f62809e8b2737-original/com/megacrit/cardcrawl/events/AbstractEvent.java
++++ b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/events/AbstractEvent.java
+@@ -77,7 +77,7 @@ implements Disposable {
+         this.roomEventText.clear();
+         AbstractDungeon.getCurrRoom().phase = AbstractRoom.RoomPhase.COMBAT;
+         AbstractDungeon.getCurrRoom().monsters.init();
+-        AbstractRoom.waitTimer = 0.1f;
++        AbstractRoom.waitTimer = 0.01f;
+         AbstractDungeon.player.preBattlePrep();
+         this.hasFocus = false;
+         this.roomEventText.hide();
+diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/events/AbstractImageEvent.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/events/AbstractImageEvent.class
+new file mode 100644
+index 0000000..8292a1c
+Binary files /dev/null and b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/events/AbstractImageEvent.class differ
+diff --git a/6661e72999ce8b0e2b6f62809e8b2737-original/com/megacrit/cardcrawl/events/AbstractImageEvent.java b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/events/AbstractImageEvent.java
+index 38513c5..b78edbb 100644
+--- a/6661e72999ce8b0e2b6f62809e8b2737-original/com/megacrit/cardcrawl/events/AbstractImageEvent.java
++++ b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/events/AbstractImageEvent.java
+@@ -73,7 +73,7 @@ extends AbstractEvent {
+         AbstractDungeon.player.isEscaping = false;
+         AbstractDungeon.getCurrRoom().phase = AbstractRoom.RoomPhase.COMBAT;
+         AbstractDungeon.getCurrRoom().monsters.init();
+-        AbstractRoom.waitTimer = 0.1f;
++        AbstractRoom.waitTimer = 0.01f;
+         AbstractDungeon.player.preBattlePrep();
+         this.hasFocus = false;
+         GenericEventDialog.hide();
 diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/CardLibrary$1.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/CardLibrary$1.class
 new file mode 100644
 index 0000000..a0caa35

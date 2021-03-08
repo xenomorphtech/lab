@@ -49,7 +49,7 @@ defmodule SlayTheSpire do
     end
 
     def reset(ex_gym, seed \\ 1) do
-        :java.call_static(ex_gym.jvm,:'com.megacrit.cardcrawl.desktop.DesktopLauncher', :call_startDungeon, [seed])
+        :java.call_static(ex_gym.jvm,:'com.megacrit.cardcrawl.desktop.ApiObj', :startDungeon, [seed])
         Process.sleep(1_000)
         ex_gym = Map.put(ex_gym, :state, observe(ex_gym))
         Map.put(ex_gym, :observable_state, "")
@@ -62,6 +62,13 @@ defmodule SlayTheSpire do
     def act(ex_gym, action) do
         oldState = ex_gym.state
         case action do
+            %{action: :use_card, cost: cost, id: id, target_index: mob_idx} ->
+                card = Enum.find(ex_gym.state.player.hand, & &1.id == id && &1.costNow == cost)
+                action_playCard(ex_gym, card.index, mob_idx)
+            %{action: :use_card, cost: cost, id: id} ->
+                card = Enum.find(ex_gym.state.player.hand, & &1.id == id && &1.costNow == cost)
+                action_playCard(ex_gym, card.index)
+
             %{action: :use_card, card_index: idx, target_index: mob_idx} ->
                 action_playCard(ex_gym, idx, mob_idx)
             %{action: :use_card, card_index: idx} ->
@@ -86,7 +93,7 @@ defmodule SlayTheSpire do
     end
 
     def observe(ex_gym) do
-        :java.string_to_list(:java.call_static(ex_gym.jvm, :'com.megacrit.cardcrawl.desktop.DesktopLauncher', :call_state, []))
+        :java.string_to_list(:java.call_static(ex_gym.jvm, :'com.megacrit.cardcrawl.desktop.ApiObj', :state, []))
         |> :unicode.characters_to_binary()
         |> JSX.decode!(labels: :atom)
     end
@@ -116,13 +123,17 @@ defmodule SlayTheSpire do
                     if card.target in ["ENEMY", "SELF_AND_ENEMY"] do #only spot_weakness has SELF_AND_ENEMY
                         Enum.map(monsters, fn(monster)->
                             if !monster.isDeadOrEscaped do
-                                %{action: :use_card, card_index: card.index, target_index: monster.index}
+                                #%{action: :use_card, card_index: card.index, target_index: monster.index}
+                                %{action: :use_card, id: card.id, cost: card.costNow, target_index: monster.index}
                             end
                         end)
                     else
-                        %{action: :use_card, card_index: card.index}
+                        #%{action: :use_card, card_index: card.index}
+                        %{action: :use_card, id: card.id, cost: card.costNow}
                     end
                 end)
+                |> List.flatten()
+                |> Enum.uniq_by(& {&1.id, &1.cost, &1[:target_index]})
                 |> List.insert_at(-1, %{action: :end_turn})
 
             state.screenType == "COMBAT_REWARD" and length(screen.rewards) > 0 ->
@@ -131,6 +142,7 @@ defmodule SlayTheSpire do
                         reward.type == "GOLD" -> %{action: :claim_reward, index: reward.index}
                         reward.type == "POTION" and length(state.player.potions) < state.player.potionSlots ->
                             %{action: :claim_reward, index: reward.index}
+                            #%{action: :claim_reward, id: reward.id}
                         reward.type == "POTION" ->
                             #swap_potion_for_another skip for now
                             #%{action: :claim_reward, index: reward.index}
@@ -166,42 +178,85 @@ defmodule SlayTheSpire do
     end
 
     def action_setCurrMapNode(ex_gym, x, y) do
-        :void = :java.call_static(ex_gym.jvm,:'com.megacrit.cardcrawl.desktop.DesktopLauncher', :call_setCurrMapNode2, [x,y])
+        :void = :java.call_static(ex_gym.jvm,:'com.megacrit.cardcrawl.desktop.ApiObj', :setCurrMapNode2, [x,y])
         Process.sleep(100)
     end
 
     def action_playCard(ex_gym, card_idx, target_idx \\ nil) do
         if !target_idx do
-            :void = :java.call_static(ex_gym.jvm,:'com.megacrit.cardcrawl.desktop.DesktopLauncher', :call_playCard, [card_idx])
+            :void = :java.call_static(ex_gym.jvm,:'com.megacrit.cardcrawl.desktop.ApiObj', :playCard, [card_idx])
         else
-            :void = :java.call_static(ex_gym.jvm,:'com.megacrit.cardcrawl.desktop.DesktopLauncher', :call_playCard, [card_idx, target_idx])
+            :void = :java.call_static(ex_gym.jvm,:'com.megacrit.cardcrawl.desktop.ApiObj', :playCard, [card_idx, target_idx])
         end
         Process.sleep(20)
     end
 
     def action_endTurn(ex_gym) do
-        :void = :java.call_static(ex_gym.jvm,:'com.megacrit.cardcrawl.desktop.DesktopLauncher', :call_endTurn, [])
+        :void = :java.call_static(ex_gym.jvm,:'com.megacrit.cardcrawl.desktop.ApiObj', :endTurn, [])
         Process.sleep(100)
     end
 
     def action_waitScreenChange(ex_gym) do
-        :void = :java.call_static(ex_gym.jvm,:'com.megacrit.cardcrawl.desktop.DesktopLauncher', :call_waitScreenChange, [])
+        :void = :java.call_static(ex_gym.jvm,:'com.megacrit.cardcrawl.desktop.ApiObj', :waitScreenChange, [])
         Process.sleep(100)
     end
 
     def action_skipReward(ex_gym, reward_idx) do
-        :void = :java.call_static(ex_gym.jvm,:'com.megacrit.cardcrawl.desktop.DesktopLauncher', :call_skipReward, [reward_idx])
+        :void = :java.call_static(ex_gym.jvm,:'com.megacrit.cardcrawl.desktop.ApiObj', :skipReward, [reward_idx])
         Process.sleep(100)
     end
 
     def action_claimReward(ex_gym, reward_idx) do
-        :void = :java.call_static(ex_gym.jvm,:'com.megacrit.cardcrawl.desktop.DesktopLauncher', :call_claimReward, [reward_idx])
+        :void = :java.call_static(ex_gym.jvm,:'com.megacrit.cardcrawl.desktop.ApiObj', :claimReward, [reward_idx])
         Process.sleep(100)
     end
 
     def action_claimCardReward(ex_gym, reward_idx, card_idx) do
-        :void = :java.call_static(ex_gym.jvm,:'com.megacrit.cardcrawl.desktop.DesktopLauncher', :call_claimCardReward, [reward_idx, card_idx])
+        :void = :java.call_static(ex_gym.jvm,:'com.megacrit.cardcrawl.desktop.ApiObj', :claimCardReward, [reward_idx, card_idx])
         Process.sleep(100)
+    end
+
+    def test_gym_basic() do
+        sts = SlayTheSpire.init()
+
+        sts = SlayTheSpire.reset(sts, 1)
+        [act = %{action: :next_floor, x: 3, y: 0}] = SlayTheSpire.actions(sts)
+        {sts, %{done: false, reward: 0.0}} = SlayTheSpire.step(sts, act)
+
+        [
+          %{action: :use_card, cost: 1, id: "Strike_R", target_index: 0},
+          act = %{action: :use_card, cost: 2, id: "Bash", target_index: 0},
+          %{action: :use_card, cost: 1, id: "Defend_R"},
+          %{action: :end_turn}
+        ] = SlayTheSpire.actions(sts)
+        {sts, %{done: false, reward: 0.0}} = SlayTheSpire.step(sts, act)
+        [act = %{action: :use_card, cost: 1, id: "Strike_R"} | _] = SlayTheSpire.actions(sts)
+        {sts, %{done: false, reward: 0.0}} = SlayTheSpire.step(sts, act)
+        [act = %{action: :end_turn}] = SlayTheSpire.actions(sts)
+        {sts, %{done: false, reward: 0.0}} = SlayTheSpire.step(sts, act)
+
+        [_, act = %{action: :use_card, card_index: 1, target_index: 0} | _] = SlayTheSpire.actions(sts)
+        {sts, %{done: false, reward: 0.0}} = SlayTheSpire.step(sts, act)
+        [_, act = %{action: :use_card, card_index: 1, target_index: 0} | _] = SlayTheSpire.actions(sts)
+        {sts, %{done: false, reward: 0.0}} = SlayTheSpire.step(sts, act)
+        [_, act = %{action: :use_card, card_index: 1, target_index: 0} | _] = SlayTheSpire.actions(sts)
+        {sts, %{done: false, reward: 0.0}} = SlayTheSpire.step(sts, act)
+        [act = %{action: :end_turn}] = SlayTheSpire.actions(sts)
+        {sts, %{done: false, reward: r}} = SlayTheSpire.step(sts, act)
+        true = r == -0.3
+
+        [_, _, act = %{action: :use_card, card_index: 2, target_index: 0} | _] = SlayTheSpire.actions(sts)
+        {sts, %{done: false, reward: 0.0}} = SlayTheSpire.step(sts, act)
+        [act = %{action: :use_card, card_index: 0, target_index: 0} | _] = SlayTheSpire.actions(sts)
+        {sts, %{done: false, reward: r}} = SlayTheSpire.step(sts, act)
+        true = r == 1.3
+
+        [act = %{action: :claim_reward, index: 0}] = SlayTheSpire.actions(sts)
+        {sts, %{done: false, reward: 0.0}} = SlayTheSpire.step(sts, act)
+        [act = %{action: :skip_reward, index: 0}] = SlayTheSpire.actions(sts)
+        {sts, %{done: false, reward: 0.0}} = SlayTheSpire.step(sts, act)
+
+        [%{action: :next_floor, x: 4, y: 1}] = SlayTheSpire.actions(sts)
     end
 
     def test_gym() do
