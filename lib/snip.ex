@@ -31,6 +31,7 @@ defmodule Snip do
     def solve_sts_qbasic() do
         t = Lab.Trainer.QBasic.init(SlayTheSpire)
         t = Lab.Trainer.QBasic.train(t, 1000)
+        t = Lab.Trainer.QBasic.test(t, 1)
     end
 
     def sts() do
@@ -47,6 +48,8 @@ defmodule Snip do
         :java.call_static(sts.jvm,:'com.megacrit.cardcrawl.desktop.DesktopLauncher', :showMap, [])
         :java.call_static(sts.jvm,:'com.megacrit.cardcrawl.desktop.DesktopLauncher', :setCurrMapNode, [3,0])
         :java.call_static(sts.jvm,:'com.megacrit.cardcrawl.desktop.DesktopLauncher', :setCurrMapNode2, [3,0])
+
+        :java.call_static(sts.jvm,:'com.megacrit.cardcrawl.desktop.ApiObj', :cards, [])
 
         :java.call_static(sts.jvm,:'com.megacrit.cardcrawl.desktop.DesktopLauncher', :playCard, [2,0])
         :java.call_static(sts.jvm,:'com.megacrit.cardcrawl.desktop.DesktopLauncher', :playCard, [1,0])

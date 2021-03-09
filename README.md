@@ -44,9 +44,6 @@ Dont modifiy `AbstractDungeon.java` if decompiled by CFR, it subtly breaks the R
 Alot more work is needed to make the actions faster and never crash.
 SlayTheSpire.test_hardcoded_onlymobs_nocards() gives a good indication on the level of optimization, currently the run takes me about 5100ms.
 
-TODO:
- - run our API code on the mainthread
-
 
 Getting started!
 
