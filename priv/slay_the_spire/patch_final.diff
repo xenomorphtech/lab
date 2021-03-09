@@ -712,29 +712,6 @@ diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/actions/com
 new file mode 100644
 index 0000000..f9577c1
 Binary files /dev/null and b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/actions/common/EmptyDeckShuffleAction.class differ
-diff --git a/6661e72999ce8b0e2b6f62809e8b2737-original/com/megacrit/cardcrawl/actions/common/EmptyDeckShuffleAction.java b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/actions/common/EmptyDeckShuffleAction.java
-index b3a585c..20440f0 100644
---- a/6661e72999ce8b0e2b6f62809e8b2737-original/com/megacrit/cardcrawl/actions/common/EmptyDeckShuffleAction.java
-+++ b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/actions/common/EmptyDeckShuffleAction.java
-@@ -43,16 +43,15 @@ extends AbstractGameAction {
-         }
-         if (!this.vfxDone) {
-             Iterator<AbstractCard> c = AbstractDungeon.player.discardPile.group.iterator();
--            if (c.hasNext()) {
-+            while (c.hasNext()) {
-                 ++this.count;
-                 AbstractCard e = c.next();
-                 c.remove();
-                 if (this.count < 11) {
--                    AbstractDungeon.getCurrRoom().souls.shuffle(e, false);
-+                    AbstractDungeon.getCurrRoom().souls.shuffle(e, true);
-                 } else {
-                     AbstractDungeon.getCurrRoom().souls.shuffle(e, true);
-                 }
--                return;
-             }
-             this.vfxDone = true;
-         }
 diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/actions/common/EndTurnAction.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/actions/common/EndTurnAction.class
 new file mode 100644
 index 0000000..4c5032f
@@ -2335,14 +2312,14 @@ index 3ac8b89..6d801d3 100644
          }
 diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/ApiObj.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/ApiObj.class
 new file mode 100644
-index 0000000..0a3ebf5
+index 0000000..06591b8
 Binary files /dev/null and b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/ApiObj.class differ
 diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/ApiObj.java b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/ApiObj.java
 new file mode 100644
-index 0000000..77938f8
+index 0000000..3a5f893
 --- /dev/null
 +++ b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/ApiObj.java
-@@ -0,0 +1,844 @@
+@@ -0,0 +1,899 @@
 +package com.megacrit.cardcrawl.desktop;
 +
 +import com.megacrit.cardcrawl.core.CardCrawlGame;
@@ -2401,6 +2378,10 @@ index 0000000..77938f8
 +import org.apache.logging.log4j.LogManager;
 +import org.apache.logging.log4j.Logger;
 +
++import com.megacrit.cardcrawl.helpers.CardLibrary;
++import com.megacrit.cardcrawl.helpers.RelicLibrary;
++import com.megacrit.cardcrawl.helpers.PotionHelper;
++
 +public class ApiObj {
 +    public static final Logger logger;
 +
@@ -2414,6 +2395,55 @@ index 0000000..77938f8
 +    static {
 +        System.setProperty("log4j.configurationFile", "log4j2.xml");
 +        logger = LogManager.getLogger(DesktopLauncher.class.getName());
++    }
++
++    public static String cards() {
++        String text = "[";
++        int id = 0;
++        for (String key : CardLibrary.cards.keySet()) {
++            text = text.concat(MessageFormat.format("'{'\"card\": \"{0}\",\"id\": {1}'}',",
++                key, id++));
++        }
++        text = replaceLast(text, ",", "");
++        return text.concat("]");
++    }
++
++    public static String potions() {
++        String text = "[";
++        int id = 0;
++        for (String key : PotionHelper.getPotions(AbstractPlayer.PlayerClass.IRONCLAD, true)) {
++            text = text.concat(MessageFormat.format("'{'\"potion\": \"{0}\",\"id\": {1}'}',",
++                key, id++));
++        }
++        text = replaceLast(text, ",", "");
++        return text.concat("]");
++    }
++
++    public static String relics() {
++        String text = "[";
++        int id = 0;
++        for (String key : RelicLibrary.sharedRelics.keySet()) {
++            text = text.concat(MessageFormat.format("'{'\"relic\": \"{0}\",\"id\": {1}'}',",
++                key, id++));
++        }
++        for (String key : RelicLibrary.redRelics.keySet()) {
++            text = text.concat(MessageFormat.format("'{'\"relic\": \"{0}\",\"id\": {1}'}',",
++                key, id++));
++        }
++        for (String key : RelicLibrary.greenRelics.keySet()) {
++            text = text.concat(MessageFormat.format("'{'\"relic\": \"{0}\",\"id\": {1}'}',",
++                key, id++));
++        }
++        for (String key : RelicLibrary.blueRelics.keySet()) {
++            text = text.concat(MessageFormat.format("'{'\"relic\": \"{0}\",\"id\": {1}'}',",
++                key, id++));
++        }
++        for (String key : RelicLibrary.purpleRelics.keySet()) {
++            text = text.concat(MessageFormat.format("'{'\"relic\": \"{0}\",\"id\": {1}'}',",
++                key, id++));
++        }
++        text = replaceLast(text, ",", "");
++        return text.concat("]");
 +    }
 +
 +    public static String state() {
@@ -2508,6 +2538,8 @@ index 0000000..77938f8
 +                    return;
 +                case "wait_end_turn":
 +                    if (function_arg1 == GameActionManager.turn)
++                        return;
++                    if (CardCrawlGame.dungeon.player.hand.group.size() <= 1 && CardCrawlGame.dungeon.player.isDead == false)
 +                        return;
 +                    function_to_call = null;
 +                    state = null;
@@ -3187,6 +3219,691 @@ index 0000000..77938f8
 +        return json;
 +    }
 +}
+diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/ApiObjMisc$1.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/ApiObjMisc$1.class
+new file mode 100644
+index 0000000..2c318d0
+Binary files /dev/null and b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/ApiObjMisc$1.class differ
+diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/ApiObjMisc$2.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/ApiObjMisc$2.class
+new file mode 100644
+index 0000000..f4590a8
+Binary files /dev/null and b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/ApiObjMisc$2.class differ
+diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/ApiObjMisc$3.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/ApiObjMisc$3.class
+new file mode 100644
+index 0000000..940478b
+Binary files /dev/null and b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/ApiObjMisc$3.class differ
+diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/ApiObjMisc$4.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/ApiObjMisc$4.class
+new file mode 100644
+index 0000000..382e288
+Binary files /dev/null and b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/ApiObjMisc$4.class differ
+diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/ApiObjMisc$5.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/ApiObjMisc$5.class
+new file mode 100644
+index 0000000..9db6cd3
+Binary files /dev/null and b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/ApiObjMisc$5.class differ
+diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/ApiObjMisc.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/ApiObjMisc.class
+new file mode 100644
+index 0000000..4d0406e
+Binary files /dev/null and b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/ApiObjMisc.class differ
+diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/ApiObjMisc.java b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/ApiObjMisc.java
+new file mode 100644
+index 0000000..df7e40d
+--- /dev/null
++++ b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/ApiObjMisc.java
+@@ -0,0 +1,655 @@
++package com.megacrit.cardcrawl.desktop;
++
++import java.nio.charset.Charset;
++import java.util.Locale;
++import org.apache.logging.log4j.LogManager;
++import org.apache.logging.log4j.Logger;
++
++import com.megacrit.cardcrawl.monsters.AbstractMonster;
++
++import java.util.HashMap;
++import java.util.Map;
++
++public class ApiObjMisc {
++    public static final Logger logger;
++
++    static {
++        System.setProperty("log4j.configurationFile", "log4j2.xml");
++        logger = LogManager.getLogger(DesktopLauncher.class.getName());
++    }
++
++    HashMap<AbstractMonster.Intent, Float> monster_intent_to_float  = new HashMap<AbstractMonster.Intent, Float>() {{
++        put(AbstractMonster.Intent.ATTACK, 0.0f);
++        put(AbstractMonster.Intent.ATTACK_BUFF, 1.0f);
++        put(AbstractMonster.Intent.ATTACK_DEBUFF, 2.0f);
++        put(AbstractMonster.Intent.ATTACK_DEFEND, 3.0f);
++        put(AbstractMonster.Intent.BUFF, 4.0f);
++        put(AbstractMonster.Intent.DEBUFF, 5.0f);
++        put(AbstractMonster.Intent.STRONG_DEBUFF, 6.0f);
++        put(AbstractMonster.Intent.DEBUG, 7.0f);
++        put(AbstractMonster.Intent.DEFEND, 8.0f);
++        put(AbstractMonster.Intent.DEFEND_DEBUFF, 9.0f);
++        put(AbstractMonster.Intent.DEFEND_BUFF, 10.0f);
++        put(AbstractMonster.Intent.ESCAPE, 11.0f);
++        put(AbstractMonster.Intent.MAGIC, 12.0f);
++        put(AbstractMonster.Intent.NONE, 13.0f);
++        put(AbstractMonster.Intent.SLEEP, 14.0f);
++        put(AbstractMonster.Intent.STUN, 15.0f);
++        put(AbstractMonster.Intent.UNKNOWN, 16.0f);
++    }};
++
++    HashMap<String, Float> monster_to_float  = new HashMap<String, Float>() {{
++        put("AcidSlime_L", 0.0f);
++        put("AcidSlime_M", 1.0f);
++        put("AcidSlime_S", 2.0f);
++        put("Apology Slime", 3.0f);
++        put("Cultist", 4.0f);
++        put("FungiBeast", 5.0f);
++        put("GremlinFat", 6.0f);
++        put("GremlinNob", 7.0f);
++        put("GremlinThief", 8.0f);
++        put("GremlinTsundere", 9.0f);
++        put("GremlinWarrior", 10.0f);
++        put("GremlinWizard", 11.0f);
++        put("Hexaghost", 12.0f);
++        put("HexaghostBody", 13.0f);
++        put("HexaghostOrb", 14.0f);
++        put("JawWorm", 15.0f);
++        put("Lagavulin", 16.0f);
++        put("Looter", 17.0f);
++        put("FuzzyLouseDefensive", 18.0f);
++        put("FuzzyLouseNormal", 19.0f);
++        put("Sentry", 20.0f);
++        put("SlaverBlue", 21.0f);
++        put("SlaverRed", 22.0f);
++        put("SlimeBoss", 23.0f);
++        put("SpikeSlime_L", 24.0f);
++        put("SpikeSlime_M", 25.0f);
++        put("SpikeSlime_S", 26.0f);
++        put("TheGuardian", 27.0f);
++    }};
++
++    HashMap<String, Float> potion_to_float  = new HashMap<String, Float>() {{
++        put("BloodPotion", 0.0f);
++        put("ElixirPotion", 1.0f);
++        put("HeartOfIron", 2.0f);
++        put("Poison Potion", 3.0f);
++        put("CunningPotion", 4.0f);
++        put("GhostInAJar", 5.0f);
++        put("FocusPotion", 6.0f);
++        put("PotionOfCapacity", 7.0f);
++        put("EssenceOfDarkness", 8.0f);
++        put("BottledMiracle", 9.0f);
++        put("StancePotion", 10.0f);
++        put("Ambrosia", 11.0f);
++        put("Block Potion", 12.0f);
++        put("Dexterity Potion", 13.0f);
++        put("Energy Potion", 14.0f);
++        put("Explosive Potion", 15.0f);
++        put("Fire Potion", 16.0f);
++        put("Strength Potion", 17.0f);
++        put("Swift Potion", 18.0f);
++        put("Weak Potion", 19.0f);
++        put("FearPotion", 20.0f);
++        put("SteroidPotion", 21.0f);
++        put("SpeedPotion", 22.0f);
++        put("BlessingOfTheForge", 23.0f);
++        put("Regen Potion", 24.0f);
++        put("Ancient Potion", 25.0f);
++        put("LiquidBronze", 26.0f);
++        put("EssenceOfSteel", 27.0f);
++        put("DuplicationPotion", 28.0f);
++        put("DistilledChaos", 29.0f);
++        put("CultistPotion", 30.0f);
++        put("Fruit Juice", 31.0f);
++        put("FairyPotion", 32.0f);
++        put("EntropicBrew", 33.0f);
++    }};
++
++    HashMap<String, Float> card_to_float  = new HashMap<String, Float>() {{
++        put("Immolate", 0.0f);
++        put("Grand Finale", 1.0f);
++        put("Regret", 2.0f);
++        put("Crippling Poison", 3.0f);
++        put("Storm", 4.0f);
++        put("DeusExMachina", 5.0f);
++        put("A Thousand Cuts", 6.0f);
++        put("Spot Weakness", 7.0f);
++        put("Genetic Algorithm", 8.0f);
++        put("Go for the Eyes", 9.0f);
++        put("Zap", 10.0f);
++        put("Steam Power", 11.0f);
++        put("Wound", 12.0f);
++        put("Core Surge", 13.0f);
++        put("Fission", 14.0f);
++        put("Writhe", 15.0f);
++        put("Beta", 16.0f);
++        put("Hello World", 17.0f);
++        put("Creative AI", 18.0f);
++        put("Dark Shackles", 19.0f);
++        put("Glass Knife", 20.0f);
++        put("Consecrate", 21.0f);
++        put("Cloak And Dagger", 22.0f);
++        put("BowlingBash", 23.0f);
++        put("Underhanded Strike", 24.0f);
++        put("Anger", 25.0f);
++        put("Storm of Steel", 26.0f);
++        put("WheelKick", 27.0f);
++        put("Cleave", 28.0f);
++        put("Ball Lightning", 29.0f);
++        put("Sunder", 30.0f);
++        put("Glacier", 31.0f);
++        put("Inflame", 32.0f);
++        put("Sadistic Nature", 33.0f);
++        put("J.A.X.", 34.0f);
++        put("Offering", 35.0f);
++        put("Vengeance", 36.0f);
++        put("FlyingSleeves", 37.0f);
++        put("Streamline", 38.0f);
++        put("Wireheading", 39.0f);
++        put("Consume", 40.0f);
++        put("Power Through", 41.0f);
++        put("Dual Wield", 42.0f);
++        put("Deadly Poison", 43.0f);
++        put("Leg Sweep", 44.0f);
++        put("PanicButton", 45.0f);
++        put("Flex", 46.0f);
++        put("Redo", 47.0f);
++        put("AscendersBane", 48.0f);
++        put("Dagger Spray", 49.0f);
++        put("Bullet Time", 50.0f);
++        put("Fusion", 51.0f);
++        put("Catalyst", 52.0f);
++        put("Sanctity", 53.0f);
++        put("Halt", 54.0f);
++        put("Reaper", 55.0f);
++        put("Shiv", 56.0f);
++        put("Bane", 57.0f);
++        put("Tactician", 58.0f);
++        put("JustLucky", 59.0f);
++        put("After Image", 60.0f);
++        put("Unload", 61.0f);
++        put("FlurryOfBlows", 62.0f);
++        put("Blade Dance", 63.0f);
++        put("Deflect", 64.0f);
++        put("Compile Driver", 65.0f);
++        put("TalkToTheHand", 66.0f);
++        put("BattleHymn", 67.0f);
++        put("Protect", 68.0f);
++        put("Trip", 69.0f);
++        put("Indignation", 70.0f);
++        put("Dagger Throw", 71.0f);
++        put("Amplify", 72.0f);
++        put("ThirdEye", 73.0f);
++        put("Brutality", 74.0f);
++        put("Night Terror", 75.0f);
++        put("WindmillStrike", 76.0f);
++        put("Iron Wave", 77.0f);
++        put("Reboot", 78.0f);
++        put("Reckless Charge", 79.0f);
++        put("All For One", 80.0f);
++        put("ForeignInfluence", 81.0f);
++        put("Decay", 82.0f);
++        put("FameAndFortune", 83.0f);
++        put("Tools of the Trade", 84.0f);
++        put("Aggregate", 85.0f);
++        put("Expertise", 86.0f);
++        put("Dramatic Entrance", 87.0f);
++        put("Hemokinesis", 88.0f);
++        put("Blizzard", 89.0f);
++        put("Chaos", 90.0f);
++        put("LiveForever", 91.0f);
++        put("Intimidate", 92.0f);
++        put("Echo Form", 93.0f);
++        put("Necronomicurse", 94.0f);
++        put("Juggernaut", 95.0f);
++        put("Choke", 96.0f);
++        put("Caltrops", 97.0f);
++        put("Impatience", 98.0f);
++        put("DevaForm", 99.0f);
++        put("Poisoned Stab", 100.0f);
++        put("The Bomb", 101.0f);
++        put("Blur", 102.0f);
++        put("LikeWater", 103.0f);
++        put("Body Slam", 104.0f);
++        put("Insight", 105.0f);
++        put("Setup", 106.0f);
++        put("Barrage", 107.0f);
++        put("Crescendo", 108.0f);
++        put("SpiritShield", 109.0f);
++        put("Blood for Blood", 110.0f);
++        put("Impervious", 111.0f);
++        put("ClearTheMind", 112.0f);
++        put("EmptyBody", 113.0f);
++        put("Shrug It Off", 114.0f);
++        put("Meteor Strike", 115.0f);
++        put("Establishment", 116.0f);
++        put("Fasting2", 117.0f);
++        put("Clash", 118.0f);
++        put("Stack", 119.0f);
++        put("Miracle", 120.0f);
++        put("CarveReality", 121.0f);
++        put("Wallop", 122.0f);
++        put("Thunderclap", 123.0f);
++        put("Rebound", 124.0f);
++        put("Flame Barrier", 125.0f);
++        put("Seek", 126.0f);
++        put("Endless Agony", 127.0f);
++        put("WreathOfFlame", 128.0f);
++        put("Collect", 129.0f);
++        put("SashWhip", 130.0f);
++        put("Wraith Form v2", 131.0f);
++        put("Melter", 132.0f);
++        put("Berserk", 133.0f);
++        put("Pummel", 134.0f);
++        put("Riddle With Holes", 135.0f);
++        put("Metallicize", 136.0f);
++        put("Self Repair", 137.0f);
++        put("Pommel Strike", 138.0f);
++        put("Pain", 139.0f);
++        put("Rainbow", 140.0f);
++        put("InnerPeace", 141.0f);
++        put("Burst", 142.0f);
++        put("Acrobatics", 143.0f);
++        put("Adaptation", 144.0f);
++        put("Loop", 145.0f);
++        put("Blind", 146.0f);
++        put("Doppelganger", 147.0f);
++        put("Skewer", 148.0f);
++        put("Omniscience", 149.0f);
++        put("Envenom", 150.0f);
++        put("Chill", 151.0f);
++        put("Adrenaline", 152.0f);
++        put("Quick Slash", 153.0f);
++        put("Twin Strike", 154.0f);
++        put("BootSequence", 155.0f);
++        put("Parasite", 156.0f);
++        put("Bash", 157.0f);
++        put("RitualDagger", 158.0f);
++        put("Gash", 159.0f);
++        put("Wish", 160.0f);
++        put("Clothesline", 161.0f);
++        put("DeceiveReality", 162.0f);
++        put("MentalFortress", 163.0f);
++        put("Shockwave", 164.0f);
++        put("BecomeAlmighty", 165.0f);
++        put("Rampage", 166.0f);
++        put("Coolheaded", 167.0f);
++        put("Static Discharge", 168.0f);
++        put("Alpha", 169.0f);
++        put("Heatsinks", 170.0f);
++        put("Vault", 171.0f);
++        put("Bandage Up", 172.0f);
++        put("Scrawl", 173.0f);
++        put("Sever Soul", 174.0f);
++        put("Eruption", 175.0f);
++        put("Whirlwind", 176.0f);
++        put("Bite", 177.0f);
++        put("LessonLearned", 178.0f);
++        put("Secret Technique", 179.0f);
++        put("Calculated Gamble", 180.0f);
++        put("Tempest", 181.0f);
++        put("Combust", 182.0f);
++        put("Deep Breath", 183.0f);
++        put("Doubt", 184.0f);
++        put("Escape Plan", 185.0f);
++        put("CutThroughFate", 186.0f);
++        put("ReachHeaven", 187.0f);
++        put("Finisher", 188.0f);
++        put("Dark Embrace", 189.0f);
++        put("Die Die Die", 190.0f);
++        put("Well Laid Plans", 191.0f);
++        put("Ragnarok", 192.0f);
++        put("Buffer", 193.0f);
++        put("Electrodynamics", 194.0f);
++        put("FearNoEvil", 195.0f);
++        put("Seeing Red", 196.0f);
++        put("SandsOfTime", 197.0f);
++        put("Smite", 198.0f);
++        put("Violence", 199.0f);
++        put("Disarm", 200.0f);
++        put("Turbo", 201.0f);
++        put("Panache", 202.0f);
++        put("Undo", 203.0f);
++        put("Fiend Fire", 204.0f);
++        put("Terror", 205.0f);
++        put("Force Field", 206.0f);
++        put("Dazed", 207.0f);
++        put("Barricade", 208.0f);
++        put("Havoc", 209.0f);
++        put("Secret Weapon", 210.0f);
++        put("Apotheosis", 211.0f);
++        put("Sweeping Beam", 212.0f);
++        put("Feel No Pain", 213.0f);
++        put("FTL", 214.0f);
++        put("Rip and Tear", 215.0f);
++        put("Darkness", 216.0f);
++        put("Corruption", 217.0f);
++        put("Heel Hook", 218.0f);
++        put("Blasphemy", 219.0f);
++        put("Injury", 220.0f);
++        put("Double Energy", 221.0f);
++        put("Rage", 222.0f);
++        put("Machine Learning", 223.0f);
++        put("Reinforced Body", 224.0f);
++        put("Defend_P", 225.0f);
++        put("Limit Break", 226.0f);
++        put("Entrench", 227.0f);
++        put("Noxious Fumes", 228.0f);
++        put("Infinite Blades", 229.0f);
++        put("Phantasmal Killer", 230.0f);
++        put("WaveOfTheHand", 231.0f);
++        put("Malaise", 232.0f);
++        put("Conserve Battery", 233.0f);
++        put("Defend_R", 234.0f);
++        put("Mayhem", 235.0f);
++        put("Reflex", 236.0f);
++        put("Study", 237.0f);
++        put("Expunger", 238.0f);
++        put("Sentinel", 239.0f);
++        put("Survivor", 240.0f);
++        put("Wild Strike", 241.0f);
++        put("Defend_G", 242.0f);
++        put("HandOfGreed", 243.0f);
++        put("Meditate", 244.0f);
++        put("Eviscerate", 245.0f);
++        put("Flash of Steel", 246.0f);
++        put("Defend_B", 247.0f);
++        put("Battle Trance", 248.0f);
++        put("Forethought", 249.0f);
++        put("Dualcast", 250.0f);
++        put("Auto Shields", 251.0f);
++        put("Perseverance", 252.0f);
++        put("Swivel", 253.0f);
++        put("Heavy Blade", 254.0f);
++        put("Slimed", 255.0f);
++        put("Clumsy", 256.0f);
++        put("Biased Cognition", 257.0f);
++        put("Searing Blow", 258.0f);
++        put("Devotion", 259.0f);
++        put("Reprogram", 260.0f);
++        put("Hologram", 261.0f);
++        put("Corpse Explosion", 262.0f);
++        put("Second Wind", 263.0f);
++        put("Enlightenment", 264.0f);
++        put("Purity", 265.0f);
++        put("Panacea", 266.0f);
++        put("Lockon", 267.0f);
++        put("Dash", 268.0f);
++        put("Worship", 269.0f);
++        put("Conclude", 270.0f);
++        put("ThroughViolence", 271.0f);
++        put("Transmutation", 272.0f);
++        put("Ghostly", 273.0f);
++        put("Backstab", 274.0f);
++        put("Chrysalis", 275.0f);
++        put("FollowUp", 276.0f);
++        put("Void", 277.0f);
++        put("Scrape", 278.0f);
++        put("Feed", 279.0f);
++        put("Vigilance", 280.0f);
++        put("Rupture", 281.0f);
++        put("Venomology", 282.0f);
++        put("Discovery", 283.0f);
++        put("Beam Cell", 284.0f);
++        put("Leap", 285.0f);
++        put("CurseOfTheBell", 286.0f);
++        put("Bouncing Flask", 287.0f);
++        put("PathToVictory", 288.0f);
++        put("Bludgeon", 289.0f);
++        put("Finesse", 290.0f);
++        put("Slice", 291.0f);
++        put("Recycle", 292.0f);
++        put("Backflip", 293.0f);
++        put("Outmaneuver", 294.0f);
++        put("Bloodletting", 295.0f);
++        put("Brilliance", 296.0f);
++        put("Magnetism", 297.0f);
++        put("Concentrate", 298.0f);
++        put("Skim", 299.0f);
++        put("White Noise", 300.0f);
++        put("Capacitor", 301.0f);
++        put("Cold Snap", 302.0f);
++        put("CrushJoints", 303.0f);
++        put("Master of Strategy", 304.0f);
++        put("Flechettes", 305.0f);
++        put("Tantrum", 306.0f);
++        put("Perfected Strike", 307.0f);
++        put("Strike_B", 308.0f);
++        put("Thunder Strike", 309.0f);
++        put("Carnage", 310.0f);
++        put("Masterful Stab", 311.0f);
++        put("Nirvana", 312.0f);
++        put("Evaluate", 313.0f);
++        put("Prepared", 314.0f);
++        put("Good Instincts", 315.0f);
++        put("Dropkick", 316.0f);
++        put("Swift Strike", 317.0f);
++        put("Normality", 318.0f);
++        put("Strike_G", 319.0f);
++        put("MasterReality", 320.0f);
++        put("Omega", 321.0f);
++        put("Hyperbeam", 322.0f);
++        put("Accuracy", 323.0f);
++        put("Sword Boomerang", 324.0f);
++        put("EmptyMind", 325.0f);
++        put("Pride", 326.0f);
++        put("Defragment", 327.0f);
++        put("Jack Of All Trades", 328.0f);
++        put("Demon Form", 329.0f);
++        put("Fire Breathing", 330.0f);
++        put("Ghostly Armor", 331.0f);
++        put("Weave", 332.0f);
++        put("Safety", 333.0f);
++        put("Metamorphosis", 334.0f);
++        put("Prostrate", 335.0f);
++        put("SignatureMove", 336.0f);
++        put("Uppercut", 337.0f);
++        put("PiercingWail", 338.0f);
++        put("Mind Blast", 339.0f);
++        put("Neutralize", 340.0f);
++        put("Multi-Cast", 341.0f);
++        put("Shame", 342.0f);
++        put("Doom and Gloom", 343.0f);
++        put("Evolve", 344.0f);
++        put("Double Tap", 345.0f);
++        put("Sucker Punch", 346.0f);
++        put("Burn", 347.0f);
++        put("ConjureBlade", 348.0f);
++        put("Strike_R", 349.0f);
++        put("Judgement", 350.0f);
++        put("Footwork", 351.0f);
++        put("Strike_P", 352.0f);
++        put("Steam", 353.0f);
++        put("Distraction", 354.0f);
++        put("Dodge and Roll", 355.0f);
++        put("Thinking Ahead", 356.0f);
++        put("EmptyFist", 357.0f);
++        put("All Out Attack", 358.0f);
++        put("Flying Knee", 359.0f);
++        put("Predator", 360.0f);
++        put("Pray", 361.0f);
++        put("Madness", 362.0f);
++    }};
++
++    HashMap<String, Float> relic_to_float  = new HashMap<String, Float>() {{
++        put("Spirit Poop", 0.0f);
++        put("Ginger", 1.0f);
++        put("Whetstone", 2.0f);
++        put("Bottled Tornado", 3.0f);
++        put("Boot", 4.0f);
++        put("Sling", 5.0f);
++        put("Old Coin", 6.0f);
++        put("Blood Vial", 7.0f);
++        put("Sundial", 8.0f);
++        put("MealTicket", 9.0f);
++        put("Fusion Hammer", 10.0f);
++        put("HandDrill", 11.0f);
++        put("Necronomicon", 12.0f);
++        put("Kunai", 13.0f);
++        put("Pear", 14.0f);
++        put("Blue Candle", 15.0f);
++        put("Velvet Choker", 16.0f);
++        put("Eternal Feather", 17.0f);
++        put("Pen Nib", 18.0f);
++        put("Akabeko", 19.0f);
++        put("Runic Dome", 20.0f);
++        put("SlaversCollar", 21.0f);
++        put("Bird Faced Urn", 22.0f);
++        put("MutagenicStrength", 23.0f);
++        put("Snecko Eye", 24.0f);
++        put("Pandora's Box", 25.0f);
++        put("CultistMask", 26.0f);
++        put("StrikeDummy", 27.0f);
++        put("Unceasing Top", 28.0f);
++        put("Lantern", 29.0f);
++        put("Regal Pillow", 30.0f);
++        put("Singing Bowl", 31.0f);
++        put("Torii", 32.0f);
++        put("GremlinMask", 33.0f);
++        put("StoneCalendar", 34.0f);
++        put("Bag of Preparation", 35.0f);
++        put("Ancient Tea Set", 36.0f);
++        put("Cursed Key", 37.0f);
++        put("Smiling Mask", 38.0f);
++        put("Matryoshka", 39.0f);
++        put("Shovel", 40.0f);
++        put("Toolbox", 41.0f);
++        put("WingedGreaves", 42.0f);
++        put("Chemical X", 43.0f);
++        put("InkBottle", 44.0f);
++        put("Potion Belt", 45.0f);
++        put("Lee's Waffle", 46.0f);
++        put("NeowsBlessing", 47.0f);
++        put("Golden Idol", 48.0f);
++        put("Thread and Needle", 49.0f);
++        put("The Courier", 50.0f);
++        put("PreservedInsect", 51.0f);
++        put("Omamori", 52.0f);
++        put("Frozen Egg 2", 53.0f);
++        put("MawBank", 54.0f);
++        put("Busted Crown", 55.0f);
++        put("Ornamental Fan", 56.0f);
++        put("Bloody Idol", 57.0f);
++        put("Orrery", 58.0f);
++        put("Ectoplasm", 59.0f);
++        put("Turnip", 60.0f);
++        put("Art of War", 61.0f);
++        put("Bottled Lightning", 62.0f);
++        put("Toy Ornithopter", 63.0f);
++        put("Ice Cream", 64.0f);
++        put("Mark of the Bloom", 65.0f);
++        put("Calipers", 66.0f);
++        put("Tiny House", 67.0f);
++        put("Gremlin Horn", 68.0f);
++        put("Nilry's Codex", 69.0f);
++        put("CeramicFish", 70.0f);
++        put("Vajra", 71.0f);
++        put("Sozu", 72.0f);
++        put("Centennial Puzzle", 73.0f);
++        put("Lizard Tail", 74.0f);
++        put("HornCleat", 75.0f);
++        put("FaceOfCleric", 76.0f);
++        put("DollysMirror", 77.0f);
++        put("Strawberry", 78.0f);
++        put("Philosopher's Stone", 79.0f);
++        put("Prayer Wheel", 80.0f);
++        put("Toxic Egg 2", 81.0f);
++        put("Girya", 82.0f);
++        put("Happy Flower", 83.0f);
++        put("Astrolabe", 84.0f);
++        put("Dead Branch", 85.0f);
++        put("Oddly Smooth Stone", 86.0f);
++        put("Letter Opener", 87.0f);
++        put("War Paint", 88.0f);
++        put("Question Card", 89.0f);
++        put("WarpedTongs", 90.0f);
++        put("Du-Vu Doll", 91.0f);
++        put("OrangePellets", 92.0f);
++        put("Bottled Flame", 93.0f);
++        put("Shuriken", 94.0f);
++        put("Bronze Scales", 95.0f);
++        put("Molten Egg 2", 96.0f);
++        put("Black Star", 97.0f);
++        put("Nloth's Gift", 98.0f);
++        put("Meat on the Bone", 99.0f);
++        put("NlothsMask", 100.0f);
++        put("Pocketwatch", 101.0f);
++        put("Darkstone Periapt", 102.0f);
++        put("SacredBark", 103.0f);
++        put("Enchiridion", 104.0f);
++        put("Mango", 105.0f);
++        put("Incense Burner", 106.0f);
++        put("Juzu Bracelet", 107.0f);
++        put("Empty Cage", 108.0f);
++        put("PrismaticShard", 109.0f);
++        put("ClockworkSouvenir", 110.0f);
++        put("Frozen Eye", 111.0f);
++        put("SsserpentHead", 112.0f);
++        put("Dream Catcher", 113.0f);
++        put("Nunchaku", 114.0f);
++        put("TheAbacus", 115.0f);
++        put("Mummified Hand", 116.0f);
++        put("Gambling Chip", 117.0f);
++        put("Pantograph", 118.0f);
++        put("Tiny Chest", 119.0f);
++        put("Red Mask", 120.0f);
++        put("Runic Pyramid", 121.0f);
++        put("Odd Mushroom", 122.0f);
++        put("Orichalcum", 123.0f);
++        put("Medical Kit", 124.0f);
++        put("White Beast Statue", 125.0f);
++        put("Mercury Hourglass", 126.0f);
++        put("Calling Bell", 127.0f);
++        put("Peace Pipe", 128.0f);
++        put("Cauldron", 129.0f);
++        put("Strange Spoon", 130.0f);
++        put("Anchor", 131.0f);
++        put("CaptainsWheel", 132.0f);
++        put("Bag of Marbles", 133.0f);
++        put("Coffee Dripper", 134.0f);
++        put("Membership Card", 135.0f);
++        put("FossilizedHelix", 136.0f);
++        put("TungstenRod", 137.0f);
++        put("Brimstone", 138.0f);
++        put("Self Forming Clay", 139.0f);
++        put("Black Blood", 140.0f);
++        put("Magic Flower", 141.0f);
++        put("Charon's Ashes", 142.0f);
++        put("Mark of Pain", 143.0f);
++        put("Champion Belt", 144.0f);
++        put("Burning Blood", 145.0f);
++        put("Red Skull", 146.0f);
++        put("Paper Frog", 147.0f);
++        put("Runic Cube", 148.0f);
++        put("TwistedFunnel", 149.0f);
++        put("Tough Bandages", 150.0f);
++        put("The Specimen", 151.0f);
++        put("WristBlade", 152.0f);
++        put("Ninja Scroll", 153.0f);
++        put("HoveringKite", 154.0f);
++        put("Tingsha", 155.0f);
++        put("Snake Skull", 156.0f);
++        put("Paper Crane", 157.0f);
++        put("Ring of the Serpent", 158.0f);
++        put("Ring of the Snake", 159.0f);
++        put("DataDisk", 160.0f);
++        put("Emotion Chip", 161.0f);
++        put("Inserter", 162.0f);
++        put("Runic Capacitor", 163.0f);
++        put("Cracked Core", 164.0f);
++        put("Symbiotic Virus", 165.0f);
++        put("FrozenCore", 166.0f);
++        put("Cables", 167.0f);
++        put("Nuclear Battery", 168.0f);
++        put("Damaru", 169.0f);
++        put("HolyWater", 170.0f);
++        put("Melange", 171.0f);
++        put("Yang", 172.0f);
++        put("VioletLotus", 173.0f);
++        put("CloakClasp", 174.0f);
++        put("TeardropLocket", 175.0f);
++        put("PureWater", 176.0f);
++        put("GoldenEye", 177.0f);
++    }};
++}
 diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/DesktopLauncher$ApiObj.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/desktop/DesktopLauncher$ApiObj.class
 new file mode 100644
 index 0000000..021c9b3
@@ -3450,10 +4167,10 @@ index 0000000..7e45195
 Binary files /dev/null and b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/PotionHelper$1.class differ
 diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/PotionHelper.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/PotionHelper.class
 new file mode 100644
-index 0000000..ca7d94a
+index 0000000..04cf70d
 Binary files /dev/null and b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/PotionHelper.class differ
 diff --git a/6661e72999ce8b0e2b6f62809e8b2737-original/com/megacrit/cardcrawl/helpers/PotionHelper.java b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/PotionHelper.java
-index 41977e2..f3bb6a8 100644
+index 41977e2..aea5d7e 100644
 --- a/6661e72999ce8b0e2b6f62809e8b2737-original/com/megacrit/cardcrawl/helpers/PotionHelper.java
 +++ b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/PotionHelper.java
 @@ -82,7 +82,7 @@ public class PotionHelper {
@@ -3465,6 +4182,15 @@ index 41977e2..f3bb6a8 100644
                      retVal.add("HeartOfIron");
                      break;
                  }
+@@ -107,7 +107,7 @@ public class PotionHelper {
+             }
+         } else {
+             retVal.add("BloodPotion");
+-            retVal.add("ElixirPotion");
++            //retVal.add("ElixirPotion");
+             retVal.add("HeartOfIron");
+             retVal.add("Poison Potion");
+             retVal.add("CunningPotion");
 @@ -128,26 +128,26 @@ public class PotionHelper {
          retVal.add("Swift Potion");
          retVal.add("Weak Potion");
@@ -3506,12 +4232,29 @@ index 0000000..25722a6
 Binary files /dev/null and b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/RelicLibrary$1.class differ
 diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/RelicLibrary.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/RelicLibrary.class
 new file mode 100644
-index 0000000..e473530
+index 0000000..15f1aba
 Binary files /dev/null and b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/RelicLibrary.class differ
 diff --git a/6661e72999ce8b0e2b6f62809e8b2737-original/com/megacrit/cardcrawl/helpers/RelicLibrary.java b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/RelicLibrary.java
-index 56ba6ac..d515600 100644
+index 56ba6ac..c8369b8 100644
 --- a/6661e72999ce8b0e2b6f62809e8b2737-original/com/megacrit/cardcrawl/helpers/RelicLibrary.java
 +++ b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/helpers/RelicLibrary.java
+@@ -200,11 +200,11 @@ public class RelicLibrary {
+     private static final Logger logger = LogManager.getLogger(RelicLibrary.class.getName());
+     public static int totalRelicCount = 0;
+     public static int seenRelics = 0;
+-    private static HashMap<String, AbstractRelic> sharedRelics = new HashMap();
+-    private static HashMap<String, AbstractRelic> redRelics = new HashMap();
+-    private static HashMap<String, AbstractRelic> greenRelics = new HashMap();
+-    private static HashMap<String, AbstractRelic> blueRelics = new HashMap();
+-    private static HashMap<String, AbstractRelic> purpleRelics = new HashMap();
++    public static HashMap<String, AbstractRelic> sharedRelics = new HashMap();
++    public static HashMap<String, AbstractRelic> redRelics = new HashMap();
++    public static HashMap<String, AbstractRelic> greenRelics = new HashMap();
++    public static HashMap<String, AbstractRelic> blueRelics = new HashMap();
++    public static HashMap<String, AbstractRelic> purpleRelics = new HashMap();
+     public static ArrayList<AbstractRelic> starterList = new ArrayList();
+     public static ArrayList<AbstractRelic> commonList = new ArrayList();
+     public static ArrayList<AbstractRelic> uncommonList = new ArrayList();
 @@ -222,51 +222,51 @@ public class RelicLibrary {
          RelicLibrary.add(new Abacus());
          RelicLibrary.add(new Akabeko());
@@ -4159,6 +4902,108 @@ index 9782db2..d826ac9 100644
          }
          Iterator<AbstractGameEffect> i = this.flameEffect.iterator();
          while (i.hasNext()) {
+diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/screens/DeathScreen.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/screens/DeathScreen.class
+new file mode 100644
+index 0000000..bb4c21e
+Binary files /dev/null and b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/screens/DeathScreen.class differ
+diff --git a/6661e72999ce8b0e2b6f62809e8b2737-original/com/megacrit/cardcrawl/screens/DeathScreen.java b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/screens/DeathScreen.java
+index c5afd3d..dd96b88 100644
+--- a/6661e72999ce8b0e2b6f62809e8b2737-original/com/megacrit/cardcrawl/screens/DeathScreen.java
++++ b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/screens/DeathScreen.java
+@@ -104,38 +104,17 @@ extends GameOverScreen {
+             AbstractDungeon.dynamicBanner.appear(this.getDeathBannerText());
+         }
+         if (Settings.isStandardRun()) {
+-            if (AbstractDungeon.floorNum >= 16) {
+-                logger.info("Neow available");
+-                CardCrawlGame.playerPref.putInteger(AbstractDungeon.player.chosenClass.name() + "_SPIRITS", 1);
+-            } else {
++            //if (AbstractDungeon.floorNum >= 16) {
++            //    logger.info("Neow available");
++            //    CardCrawlGame.playerPref.putInteger(AbstractDungeon.player.chosenClass.name() + "_SPIRITS", 1);
++            //} else {
+                 logger.info("No Neow for you");
+                 CardCrawlGame.playerPref.putInteger(AbstractDungeon.player.chosenClass.name() + "_SPIRITS", 0);
+                 AbstractDungeon.bossCount = 0;
+-            }
++            //}
+         }
+         CardCrawlGame.music.dispose();
+-        CardCrawlGame.sound.play("DEATH_STINGER", true);
+-        String bgmKey = null;
+-        switch (MathUtils.random(0, 3)) {
+-            case 0: {
+-                bgmKey = "STS_DeathStinger_1_v3_MUSIC.ogg";
+-                break;
+-            }
+-            case 1: {
+-                bgmKey = "STS_DeathStinger_2_v3_MUSIC.ogg";
+-                break;
+-            }
+-            case 2: {
+-                bgmKey = "STS_DeathStinger_3_v3_MUSIC.ogg";
+-                break;
+-            }
+-            case 3: {
+-                bgmKey = "STS_DeathStinger_4_v3_MUSIC.ogg";
+-                break;
+-            }
+-        }
+-        CardCrawlGame.music.playTempBgmInstantly(bgmKey, false);
+-        if (isVictory) {
++        /*if (isVictory) {
+             UnlockTracker.unlockAchievement(AbstractDungeon.player.getAchievementKey());
+             this.submitVictoryMetrics();
+             if (this.playtime != 0L) {
+@@ -153,28 +132,28 @@ extends GameOverScreen {
+             }
+             this.submitDefeatMetrics(m);
+             StatsScreen.incrementDeath(AbstractDungeon.player.getCharStat());
+-        }
+-        if (Settings.isStandardRun() && AbstractDungeon.actNum > 3) {
+-            StatsScreen.incrementVictoryIfZero(AbstractDungeon.player.getCharStat());
+-        }
++        }*/
++        //if (Settings.isStandardRun() && AbstractDungeon.actNum > 3) {
++        //    StatsScreen.incrementVictoryIfZero(AbstractDungeon.player.getCharStat());
++        //}
+         this.defeatTextColor.a = 0.0f;
+         this.deathTextColor.a = 0.0f;
+-        if (this.playtime != 0L) {
+-            StatsScreen.incrementPlayTime(this.playtime);
+-        }
+-        if (Settings.isStandardRun()) {
+-            StatsScreen.updateFurthestAscent(AbstractDungeon.floorNum);
+-        } else if (Settings.isDailyRun) {
+-            StatsScreen.updateHighestDailyScore(AbstractDungeon.floorNum);
+-        }
+-        if (SaveHelper.shouldDeleteSave()) {
+-            SaveAndContinue.deleteSave(AbstractDungeon.player);
+-        }
+-        this.calculateUnlockProgress();
+-        if (!Settings.isEndless) {
+-            this.uploadToSteamLeaderboards();
+-        }
+-        this.createGameOverStats();
++        //if (this.playtime != 0L) {
++        //    StatsScreen.incrementPlayTime(this.playtime);
++        //}
++        //if (Settings.isStandardRun()) {
++        //    StatsScreen.updateFurthestAscent(AbstractDungeon.floorNum);
++        //} else if (Settings.isDailyRun) {
++        //    StatsScreen.updateHighestDailyScore(AbstractDungeon.floorNum);
++        //}
++        //if (SaveHelper.shouldDeleteSave()) {
++        //    SaveAndContinue.deleteSave(AbstractDungeon.player);
++        //}
++        //this.calculateUnlockProgress();
++        //if (!Settings.isEndless) {
++        //    this.uploadToSteamLeaderboards();
++        //}
++        //this.createGameOverStats();
+         CardCrawlGame.playerPref.flush();
+     }
+ 
 diff --git a/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/screens/DungeonMapScreen.class b/6661e72999ce8b0e2b6f62809e8b2737/com/megacrit/cardcrawl/screens/DungeonMapScreen.class
 new file mode 100644
 index 0000000..12e5357

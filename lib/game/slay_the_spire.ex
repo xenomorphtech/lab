@@ -50,9 +50,9 @@ defmodule SlayTheSpire do
 
     def reset(ex_gym, seed \\ 1) do
         :java.call_static(ex_gym.jvm,:'com.megacrit.cardcrawl.desktop.ApiObj', :startDungeon, [seed])
-        Process.sleep(1_000)
+        Process.sleep(100)
         ex_gym = Map.put(ex_gym, :state, observe(ex_gym))
-        Map.put(ex_gym, :observable_state, "")
+        Map.put(ex_gym, :observable_state, observable_state(ex_gym))
     end
 
     def step(ex_gym, action) do
@@ -115,7 +115,7 @@ defmodule SlayTheSpire do
     end
 
     def actions(ex_gym) do
-        state = %{player: %{hand: hand}, fight: %{monsters: monsters}, game: game = %{screen: screen}} = observe(ex_gym)
+        state = %{player: %{hand: hand}, fight: %{monsters: monsters}, game: game = %{screen: screen}} = ex_gym.state
         actions = cond do
             game.roomPhase == "COMBAT" ->
                 hand = Enum.filter(hand, & &1.hasEnoughEnergy)
@@ -179,7 +179,6 @@ defmodule SlayTheSpire do
 
     def action_setCurrMapNode(ex_gym, x, y) do
         :void = :java.call_static(ex_gym.jvm,:'com.megacrit.cardcrawl.desktop.ApiObj', :setCurrMapNode2, [x,y])
-        Process.sleep(100)
     end
 
     def action_playCard(ex_gym, card_idx, target_idx \\ nil) do
@@ -188,12 +187,10 @@ defmodule SlayTheSpire do
         else
             :void = :java.call_static(ex_gym.jvm,:'com.megacrit.cardcrawl.desktop.ApiObj', :playCard, [card_idx, target_idx])
         end
-        Process.sleep(20)
     end
 
     def action_endTurn(ex_gym) do
         :void = :java.call_static(ex_gym.jvm,:'com.megacrit.cardcrawl.desktop.ApiObj', :endTurn, [])
-        Process.sleep(100)
     end
 
     def action_waitScreenChange(ex_gym) do
@@ -203,17 +200,14 @@ defmodule SlayTheSpire do
 
     def action_skipReward(ex_gym, reward_idx) do
         :void = :java.call_static(ex_gym.jvm,:'com.megacrit.cardcrawl.desktop.ApiObj', :skipReward, [reward_idx])
-        Process.sleep(100)
     end
 
     def action_claimReward(ex_gym, reward_idx) do
         :void = :java.call_static(ex_gym.jvm,:'com.megacrit.cardcrawl.desktop.ApiObj', :claimReward, [reward_idx])
-        Process.sleep(100)
     end
 
     def action_claimCardReward(ex_gym, reward_idx, card_idx) do
         :void = :java.call_static(ex_gym.jvm,:'com.megacrit.cardcrawl.desktop.ApiObj', :claimCardReward, [reward_idx, card_idx])
-        Process.sleep(100)
     end
 
     def test_gym_basic() do
@@ -477,5 +471,33 @@ defmodule SlayTheSpire do
         else
             :os.system_time(1000) - start_time
         end
+    end
+
+    def dump_cards() do
+        sts = SlayTheSpire.init()
+        res = :java.string_to_list(:java.call_static(sts.jvm,:'com.megacrit.cardcrawl.desktop.ApiObj', :cards, []))
+        |> :unicode.characters_to_binary()
+        |> JSX.decode!(labels: :atom)
+        |> Enum.sort_by(& &1.id)
+        IO.puts Enum.map(res, fn card->
+            "put(\"#{card.card}\", #{card.id}.0f);"
+        end) |> Enum.join("\n")
+        IO.inspect res, limit: 1111111
+
+        res = :java.string_to_list(:java.call_static(sts.jvm,:'com.megacrit.cardcrawl.desktop.ApiObj', :relics, []))
+        |> :unicode.characters_to_binary()
+        |> JSX.decode!(labels: :atom)
+        |> Enum.sort_by(& &1.id)
+        IO.puts Enum.map(res, fn relic->
+            "put(\"#{relic.relic}\", #{relic.id}.0f);"
+        end) |> Enum.join("\n")
+
+        res = :java.string_to_list(:java.call_static(sts.jvm,:'com.megacrit.cardcrawl.desktop.ApiObj', :potions, []))
+        |> :unicode.characters_to_binary()
+        |> JSX.decode!(labels: :atom)
+        |> Enum.sort_by(& &1.id)
+        IO.puts Enum.map(res, fn potion->
+            "put(\"#{potion.potion}\", #{potion.id}.0f);"
+        end) |> Enum.join("\n")
     end
 end

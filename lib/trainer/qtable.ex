@@ -25,7 +25,7 @@ defmodule Lab.Trainer.QTable do
   def set(qtable, env_state, action, value) do
     k_state = inspect(env_state)
 
-    qtable = put_in(qtable, [:actions, action], action)
+    qtable = put_in(qtable, [:actions, action], 1)
     qtable = put_in(qtable, [:table, k_state], Map.put(qtable.table[k_state]||%{}, action, value))
     qtable
   end
