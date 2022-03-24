@@ -3,11 +3,12 @@ Machine Learning Experiments
 
 ![image](https://user-images.githubusercontent.com/3028982/109432721-97b53a00-79da-11eb-83e9-cba9b9486eef.png)
 
-# references
+# Elixir axon references
 
-https://github.com/doctorcorral/gyx (huge thanks, very quick to understand)  
-https://github.com/openai/baselines  
-https://github.com/openai/gym  
+simple example  
+https://www.profiq.com/deep-learning-in-elixir-with-axon/  
+
+
 
 # readings
 
@@ -26,10 +27,16 @@ pip3 install gym[atari]
 # goals
 
 - [X] frozenlake
+- [ ] kaggle xray-pneumonia (axon)
+- [ ] mnist (axon)
 - [ ] blackjack
 - [ ] ?
 - [ ] slay_the_spire
 - [ ] 3dnavmesh https://montreal.ubisoft.com/en/deep-reinforcement-learning-for-navigation-in-aaa-video-games/
+
+# kaggle xray-pneumonia (axon)
+https://www.profiq.com/deep-learning-in-elixir-with-axon/  
+
 
 # slay_the_spire
 At 1x speed, we can improve

@@ -5,7 +5,7 @@ defmodule Lab.MixProject do
     [
       app: :lab,
       version: "0.1.0",
-      elixir: "~> 1.11.1",
+      elixir: "~> 1.13.0-rc.0",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       aliases: aliases(),
@@ -26,8 +26,8 @@ defmodule Lab.MixProject do
 
   defp aliases do
     [
-      compile: ["compile", "dialyzer --ignore-exit-status --format dialyxir"],
-      compile2: ["compile"],
+      #compile: ["compile", "dialyzer --ignore-exit-status --format dialyxir"],
+      compile: ["compile"],
       plt: ["dialyzer --force-check"]
     ]
   end
@@ -39,7 +39,7 @@ defmodule Lab.MixProject do
       {:matrex, "~> 0.6"},
 
       # our utilities
-      {:dialyxir, git: "https://github.com/xenomorphtech/dialyxir", only: [:dev], runtime: false},
+      {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
 
       #for slaythespire
       {:java_erlang, git: "https://github.com/fredlund/JavaErlang"},
@@ -49,6 +49,12 @@ defmodule Lab.MixProject do
       #{:comsat, git: "https://github.com/vans163/ComSat.git"},
       {:exjsx, "~> 4.0.0"},
       #{:stargate, git: "https://github.com/vans163/stargate.git"},
+
+      {:evision, "~> 0.1.0-dev", github: "cocoa-xu/evision", branch: "main"},
+
+      {:axon, "~> 0.1.0-dev", github: "elixir-nx/axon", branch: "main"},
+      {:exla, "~> 0.1.0-dev", github: "elixir-nx/nx", sparse: "exla", override: true},
+      {:nx, "~> 0.1.0-dev", github: "elixir-nx/nx", sparse: "nx", override: true},
     ]
   end
 end
